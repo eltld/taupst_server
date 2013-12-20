@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean login(String student_id, String pwd, String school) {
+	public Map<String , String> login(String student_id, String pwd, String school) {
 		return this.userDao.login(student_id, pwd, school);
 	}
 }

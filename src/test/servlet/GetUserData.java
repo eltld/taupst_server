@@ -2,18 +2,15 @@ package test.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.alibaba.fastjson.JSON;
-
 import test.model.User;
 import test.service.UserService;
-import test.service.impl.UserServiceImpl;
+import test.util.Object2JsonUtil;
 import test.util.ServiceFactory;
 
 /**
@@ -56,9 +53,14 @@ public class GetUserData extends HttpServlet {
 		
 		User user = userService.getUserById(users_id);
 		
-		String jsonString = JSON.toJSONString(user);
+		//String imageUrl = user.getPhoto();
+		
+		//String image = "<img src='"+imageUrl+"' alt='头像' />";
+		
+		String jsonString = Object2JsonUtil.Object2Json(user);
 		
 		System.out.println(jsonString);
+		//out.println(image);
 		out.println(jsonString);
 		out.flush();
 	}

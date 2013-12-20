@@ -13,9 +13,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -23,6 +21,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+@SuppressWarnings("deprecation")
 public class FjnuSysn implements Sysn {
 	private String userName;
 	private String password;

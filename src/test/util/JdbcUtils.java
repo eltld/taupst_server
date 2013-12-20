@@ -49,6 +49,7 @@ public class JdbcUtils {
 
 			connection = DriverManager.getConnection(connName, username,
 					password);
+			//connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/wudjdnvkxusqacqrtaxz","root" ,"root");
 
 		} catch (Exception e) {
 			e.printStackTrace();

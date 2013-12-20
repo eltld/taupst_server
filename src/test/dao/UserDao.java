@@ -13,6 +13,6 @@ public interface UserDao {
   	int test();
 	boolean saveUserInfo(Map<String, String> stuInfo);
 	boolean isUserExist(String student_id, String school);
-	boolean login(String student_id, String pwd, String school);
+	Map<String , String> login(String student_id, String pwd, String school);
 
 }

@@ -1,6 +1,7 @@
 package test.dao.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ public class UserDaoImpl implements UserDao {
 	private JdbcUtils jdbcUtils = JDBCFactory.getJdbcUtils();
 
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<User> getUserByHelper(UserQueryHelper helper, int startIndex,
 			int endIndex) {
 		//this.jdbcUtils = new JdbcUtils();
@@ -47,6 +49,7 @@ public class UserDaoImpl implements UserDao {
 		return userList;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public User getUserById(String userId) {
 		//this.jdbcUtils = new JdbcUtils();
@@ -145,12 +148,38 @@ public class UserDaoImpl implements UserDao {
 		return this.isLoginTmp(student_id, pwd, school,sql);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public boolean login(String student_id, String pwd, String school) {
-		String sql = "select * from users_info where student_id=? and pwd=? and school=?";
-		return this.isLoginTmp(student_id, pwd, school, sql);
+	public Map<String , String> login(String student_id, String pwd, String school) {
+		//return this.isLoginTmp(student_id, pwd, school, sql);
+		User user = null;
+		//boolean flag = false;
+		Map<String , String> resultMap = new HashMap<String, String>();
+		List params = new ArrayList();
+		params.add(student_id);
+		params.add(pwd);
+		params.add(school);
+		try {
+			this.jdbcUtils.getConnection();
+			String sql = "select users_id from users_info where student_id=? and pwd=? and school=?";
+			user = this.jdbcUtils.findSimpleRefResult(sql, params, User.class);
+			if(user == null){
+				//flag =  false;
+				resultMap.put("isLogined", "false");
+			}else {
+				//flag = true;
+				resultMap.put("isLogined", "true");
+				resultMap.put("users_id", user.getUsers_id().toString());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			this.jdbcUtils.releaseConn();
+		}
+		return resultMap;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private boolean isLoginTmp(String student_id, String pwd, String school,String sql){
 		User user = null;
 		boolean flag = false;

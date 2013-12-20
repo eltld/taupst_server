@@ -41,6 +41,7 @@ public class TaskDaoImpl implements TaskDao {
 	}
 
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public List<Map<String, Object>> getTaskList(
 			TaskQueryConditions conditions, Page page) {

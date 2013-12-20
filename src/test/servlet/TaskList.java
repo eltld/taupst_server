@@ -10,11 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.alibaba.fastjson.JSON;
-
 import test.model.TaskQueryConditions;
 import test.service.TaskService;
-import test.service.impl.TaskServiceImpl;
+import test.util.Object2JsonUtil;
 import test.util.Page;
 import test.util.ServiceFactory;
 
@@ -65,7 +63,7 @@ public class TaskList extends HttpServlet {
 		
 		List<Map<String, Object>> taskList = taskService.getTaskList(conditions,page);
 		
-		String jsonString = JSON.toJSONString(taskList);
+		String jsonString = Object2JsonUtil.Object2Json(taskList);
 		
 		System.out.println(jsonString);
 		out.println(jsonString);

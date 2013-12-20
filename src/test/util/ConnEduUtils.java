@@ -21,6 +21,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+@SuppressWarnings("deprecation")
 public class ConnEduUtils {
 	
 	private String UserName;

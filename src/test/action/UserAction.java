@@ -61,6 +61,7 @@ public class UserAction extends ActionSupport {
 		this.userService = userService;
 	}*/
 
+	@SuppressWarnings({ "rawtypes", "unchecked", "static-access" })
 	public String findAllUsers() {
 		
 		Page page=new Page();
@@ -83,6 +84,7 @@ public class UserAction extends ActionSupport {
 		}
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked", "static-access" })
 	public String findUserById() {
 		
 		try {
@@ -98,6 +100,7 @@ public class UserAction extends ActionSupport {
 	}
 	
     
+		@SuppressWarnings({ "rawtypes", "unchecked", "static-access" })
 		public String test() {
 		
 		try {
