@@ -278,8 +278,9 @@ public class User implements java.io.Serializable {
 
 	public void setSignature(String signature) {
 		this.signature = signature;
-	}
 
+	}
+	
 	/** default constructor */
 	public User() {
 	}
