@@ -14,4 +14,5 @@ public interface UserService {
 	boolean saveUserInfo(Map<String, String> stuInfo);
 	boolean isUserExist(String student_id, String school);
 	Map<String , String> login(String student_id, String pwd, String school);
+	boolean update(User user);
 }

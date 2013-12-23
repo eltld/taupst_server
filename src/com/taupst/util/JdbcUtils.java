@@ -15,10 +15,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 @Component("jdbcUtils")
 public class JdbcUtils {
+	
+	private static Logger log = Logger.getLogger(JdbcUtils.class.getName());
+	
 	private String host = "sqld.duapp.com";
 	private String port = "4050";
 	private String username = "A9MIroqTfseTHViNpijkXvV4";
@@ -40,23 +44,26 @@ public class JdbcUtils {
 
 	static {
 		try {
+			log.info(JdbcUtils.class.getName() + "======加载驱动...");
 			Class.forName("com.mysql.jdbc.Driver");
+			log.info(JdbcUtils.class.getName() + "======加载驱动成功");
 			System.out.println("驱动加载成功!!");
 		} catch (Exception e) {
+			log.info(JdbcUtils.class.getName() + "======加载驱动失败");
 			e.printStackTrace();
-			// TODO: handle exception
 		}
 	}
 
 	public Connection getConnection() {
 		try {
-
+			log.info(JdbcUtils.class.getName() + "======getConnection()======" + "获取数据库连接...");
 			connection = DriverManager.getConnection(connName, username,
 					password);
 
 			// connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/wudjdnvkxusqacqrtaxz","root" ,"root");
-
+			 log.info(JdbcUtils.class.getName() + "======getConnection()======" + "获取数据库连接成功");
 		} catch (Exception e) {
+			log.info(JdbcUtils.class.getName() + "======getConnection()======" + "获取数据库连接失败");
 			e.printStackTrace();
 		}
 		return connection;
@@ -186,9 +193,10 @@ public class JdbcUtils {
 			for (int i = 0; i < cols_len; i++) {
 				String cols_name = metaData.getColumnName(i + 1);
 				Object cols_value = resultSet.getObject(cols_name);
-				// if (cols_value == null) {
-				// cols_value = "";
-				// }
+				/*if (cols_value == null) {
+					 cols_value = "";
+				}*/
+				
 				if (cols_value instanceof Date) {
 					SimpleDateFormat df = new SimpleDateFormat(
 							"yyyy-MM-dd HH:mm:ss");

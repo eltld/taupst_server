@@ -17,7 +17,7 @@ import com.taupst.util.JdbcUtils;
 @Repository("userDao")
 public class UserDaoImpl implements UserDao {
 	@Resource(name="jdbcUtils")
-	private JdbcUtils jdbcUtils;// = JDBCFactory.getJdbcUtils();
+	private JdbcUtils jdbcUtils;
 
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -114,12 +114,11 @@ public class UserDaoImpl implements UserDao {
 		return count;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public boolean saveUserInfo(Map<String, String> stuInfo) {
 		//this.jdbcUtils = new JdbcUtils();
-		boolean flag = false;
-		List params = new ArrayList();
+		//boolean flag = false;
+		List<Object> params = new ArrayList<Object>();
 		StringBuilder sql = new StringBuilder();
 		sql.append("insert into users_info(student_id,school,realname,sex,department,special,classname,pwd,grade) ");
 		sql.append("values(?,?,?,?,?,?,?,?,?) ");
@@ -132,15 +131,8 @@ public class UserDaoImpl implements UserDao {
 		params.add(stuInfo.get("lbl_xzb"));
 		params.add(stuInfo.get("pwd"));
 		params.add(stuInfo.get("lbl_dqszj"));
-		try {
-			this.jdbcUtils.getConnection();
-			flag = this.jdbcUtils.updateByPreparedStatement(sql.toString(), params);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			this.jdbcUtils.releaseConn();
-		}
-		return flag;
+
+		return this.updataTmp(sql.toString(), params);
 	}
 
 	@Override
@@ -203,6 +195,34 @@ public class UserDaoImpl implements UserDao {
 			this.jdbcUtils.releaseConn();
 		}
 		return flag;
+	}
+	
+	private boolean updataTmp(String sql,List<Object> params){
+		boolean flag = false;
+		try {
+			this.jdbcUtils.getConnection();
+			flag = this.jdbcUtils.updateByPreparedStatement(sql, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			this.jdbcUtils.releaseConn();
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean update(User user) {
+		List<Object> params = new ArrayList<Object>();
+		StringBuilder sql = new StringBuilder();
+		sql.append("update users_info set username=?,qq=?,email=?,phone=? ");
+		sql.append("where users_id=? ");
+		params.add(user.getUsername());
+		params.add(user.getQq());
+		params.add(user.getEmail());
+		params.add(user.getPhone());
+		params.add(user.getUsers_id());
+		
+		return this.updataTmp(sql.toString(), params);
 	}
 	
 }

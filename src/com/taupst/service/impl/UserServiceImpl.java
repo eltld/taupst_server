@@ -16,7 +16,7 @@ import com.taupst.util.Page;
 @Service("userService")
 public class UserServiceImpl implements UserService {
 	@Resource(name="userDao")
-	private UserDao userDao;// = DaoFactory.getUserDao();
+	private UserDao userDao;
 
 	@Override
 	public User getUserById(String userId) {
@@ -52,5 +52,10 @@ public class UserServiceImpl implements UserService {
 	public Map<String, String> login(String student_id, String pwd,
 			String school) {
 		return this.userDao.login(student_id, pwd, school);
+	}
+
+	@Override
+	public boolean update(User user) {
+		return this.userDao.update(user);
 	}
 }
