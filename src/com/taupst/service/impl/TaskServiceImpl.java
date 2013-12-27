@@ -13,9 +13,9 @@ import com.taupst.service.TaskService;
 import com.taupst.util.Page;
 
 @Service("taskService")
-public class TaskServiceImpl implements TaskService{
-	
-	@Resource(name="taskDao")
+public class TaskServiceImpl implements TaskService {
+
+	@Resource(name = "taskDao")
 	private TaskDao taskDao;
 
 	@Override
@@ -24,9 +24,8 @@ public class TaskServiceImpl implements TaskService{
 	}
 
 	@Override
-	public List<Map<String, Object>> getTaskList(
-			TaskQueryConditions conditions, Page page) {
-		return this.taskDao.getTaskList(conditions, page);
+	public List<Map<String, Object>> getTaskList(TaskQueryConditions conditions,int type) {
+		return this.taskDao.getTaskList(conditions,type);
 	}
-	
+
 }

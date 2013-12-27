@@ -12,7 +12,7 @@ public class User implements java.io.Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Integer users_id; //
+	private String users_id; //
 	private String student_id; //
 	private String school;
 	private String username;
@@ -41,11 +41,11 @@ public class User implements java.io.Serializable {
 
 	// Constructors
 
-	public Integer getUsers_id() {
+	public String getUsers_id() {
 		return this.users_id;
 	}
 
-	public User(Integer users_id, String student_id, String school,
+	public User(String users_id, String student_id, String school,
 			String username, String student_pwd, String pwd, String sex,
 			String department, String classname, String photo, String nickname,
 			String introduction, Integer orientation, String qq, String email,
@@ -76,7 +76,7 @@ public class User implements java.io.Serializable {
 		this.realname = realname;
 	}
 
-	public void setUsers_id(Integer usersId) {
+	public void setUsers_id(String usersId) {
 		this.users_id = usersId;
 	}
 

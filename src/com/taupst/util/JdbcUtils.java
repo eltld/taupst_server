@@ -57,10 +57,10 @@ public class JdbcUtils {
 	public Connection getConnection() {
 		try {
 			log.info(JdbcUtils.class.getName() + "======getConnection()======" + "获取数据库连接...");
-			connection = DriverManager.getConnection(connName, username,
-					password);
+			/*connection = DriverManager.getConnection(connName, username,
+					password);*/
 
-			// connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/wudjdnvkxusqacqrtaxz","root" ,"root");
+			 connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/wudjdnvkxusqacqrtaxz","root" ,"root");
 			 log.info(JdbcUtils.class.getName() + "======getConnection()======" + "获取数据库连接成功");
 		} catch (Exception e) {
 			log.info(JdbcUtils.class.getName() + "======getConnection()======" + "获取数据库连接失败");
@@ -150,6 +150,7 @@ public class JdbcUtils {
 				pstmt.setObject(index++, params.get(i));
 			}
 		}
+		System.out.println(pstmt.toString());
 		resultSet = pstmt.executeQuery();
 		ResultSetMetaData metaData = resultSet.getMetaData();
 		int cols_len = metaData.getColumnCount();

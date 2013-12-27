@@ -120,8 +120,9 @@ public class UserDaoImpl implements UserDao {
 		//boolean flag = false;
 		List<Object> params = new ArrayList<Object>();
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into users_info(student_id,school,realname,sex,department,special,classname,pwd,grade) ");
-		sql.append("values(?,?,?,?,?,?,?,?,?) ");
+		sql.append("insert into users_info(users_id,student_id,school,realname,sex,department,special,classname,pwd,grade) ");
+		sql.append("values(?,?,?,?,?,?,?,?,?,?) ");
+		params.add(stuInfo.get("users_id"));
 		params.add(stuInfo.get("student_id"));
 		params.add(stuInfo.get("school"));
 		params.add(stuInfo.get("xm"));

@@ -10,7 +10,6 @@ public interface TaskDao {
 
 	List<Map<String, Object>> getTaskList(Page page);
 
-	List<Map<String, Object>> getTaskList(TaskQueryConditions conditions,
-			Page page);
+	List<Map<String, Object>> getTaskList(TaskQueryConditions conditions, int type);
 
 }

@@ -23,17 +23,13 @@ public class TaskController {
 	@Resource(name = "taskService")
 	private TaskService taskService;
 
-	@RequestMapping(value = "/taskList", method = RequestMethod.GET)
+	@RequestMapping(value = "/taskList2Up", method = RequestMethod.GET)
 	@ResponseBody
-	public String getTaskList(String index, TaskQueryConditions conditions,
+	public String getTaskList2Up(TaskQueryConditions conditions,
 			HttpServletResponse response) {
 
-		Page page = new Page();
-		page.setPageNo(Integer.parseInt(index));
-		page.setPageSize(10);
-
-		List<Map<String, Object>> taskList = taskService.getTaskList(
-				conditions, page);
+		int type = 2;//表示向上拉，获取比当前id时间更旧的
+		List<Map<String, Object>> taskList = taskService.getTaskList(conditions,type);
 
 		String jsonString = Object2JsonUtil.Object2Json(taskList);
 
@@ -41,4 +37,20 @@ public class TaskController {
 
 	}
 	
+	@RequestMapping(value = "/taskList2Down", method = RequestMethod.GET)
+	@ResponseBody
+	public String getTaskList2Down(TaskQueryConditions conditions,
+			HttpServletResponse response) {
+		String task_id = conditions.getTask_id();
+		int type = 0;//取出最新的20条
+		if(task_id != null && !task_id.equals("")){
+			type = 1;//表示向下拉，获取比当前id时间更新的
+		}
+		List<Map<String, Object>> taskList = taskService.getTaskList(conditions,type);
+		
+		String jsonString = Object2JsonUtil.Object2Json(taskList);
+		
+		return jsonString;
+		
+	}
 }
