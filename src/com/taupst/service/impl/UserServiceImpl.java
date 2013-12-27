@@ -33,10 +33,6 @@ public class UserServiceImpl implements UserService {
 		return page;
 	}
 
-	@Override
-	public int test() {
-		return this.userDao.test();
-	}
 
 	@Override
 	public boolean saveUserInfo(Map<String, String> stuInfo) {
@@ -44,12 +40,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean isUserExist(String student_id, String school) {
+	public int isUserExist(String student_id, String school) {
 		return this.userDao.isUserExist(student_id, school);
 	}
 
 	@Override
-	public Map<String, String> login(String student_id, String pwd,
+	public Map<String, Object> login(String student_id, String pwd,
 			String school) {
 		return this.userDao.login(student_id, pwd, school);
 	}
@@ -57,5 +53,15 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean update(User user) {
 		return this.userDao.update(user);
+	}
+
+	@Override
+	public User getUser(String student_id, String pwd, String school) {
+		return this.userDao.getUser(student_id, pwd, school);
+	}
+
+	@Override
+	public boolean updateSignature(User u) {
+		return this.userDao.updateSignature(u);
 	}
 }

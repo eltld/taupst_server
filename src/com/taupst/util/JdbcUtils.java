@@ -57,10 +57,12 @@ public class JdbcUtils {
 	public Connection getConnection() {
 		try {
 			log.info(JdbcUtils.class.getName() + "======getConnection()======" + "获取数据库连接...");
-			/*connection = DriverManager.getConnection(connName, username,
-					password);*/
 
-			 connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/wudjdnvkxusqacqrtaxz","root" ,"root");
+			connection = DriverManager.getConnection(connName, username,
+					password);
+
+			// connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/wudjdnvkxusqacqrtaxz","root" ,"root");
+			 
 			 log.info(JdbcUtils.class.getName() + "======getConnection()======" + "获取数据库连接成功");
 		} catch (Exception e) {
 			log.info(JdbcUtils.class.getName() + "======getConnection()======" + "获取数据库连接失败");

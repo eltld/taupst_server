@@ -14,16 +14,16 @@ import com.taupst.dao.UserDao;
 import com.taupst.model.User;
 import com.taupst.queryhelper.UserQueryHelper;
 import com.taupst.util.JdbcUtils;
+
 @Repository("userDao")
 public class UserDaoImpl implements UserDao {
-	@Resource(name="jdbcUtils")
+	@Resource(name = "jdbcUtils")
 	private JdbcUtils jdbcUtils;
-
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<User> getUserByHelper(UserQueryHelper helper, int startIndex,
 			int endIndex) {
-		//this.jdbcUtils = new JdbcUtils();
+		// this.jdbcUtils = new JdbcUtils();
 		List<User> userList = null;
 		String sql = "select * from users_info where 1=1";
 		if (helper != null) {
@@ -51,19 +51,35 @@ public class UserDaoImpl implements UserDao {
 		return userList;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public User getUserById(String userId) {
-		//this.jdbcUtils = new JdbcUtils();
-		User user = null;
-		List params = new ArrayList();
+
+		List<Object> params = new ArrayList<Object>();
 		params.add(userId);
 		String sql = "select * from users_info where users_id=?";
+		
+		return this.userTmp(sql, params);
+
+	}
+	
+	@Override
+	public User getUser(String student_id, String pwd, String school) {
+		String sql = "select * from users_info where student_id=? and pwd=? and school=?";
+		List<Object> params = new ArrayList<Object>();
+		params.add(student_id);
+		params.add(pwd);
+		params.add(school);
+		
+		return this.userTmp(sql, params);
+	}
+	
+	
+	private User userTmp(String sql,List<Object> params){
+		User user = null;
 		try {
 			this.jdbcUtils.getConnection();
 			user = this.jdbcUtils.findSimpleRefResult(sql, params, User.class);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			this.jdbcUtils.releaseConn();
@@ -73,7 +89,7 @@ public class UserDaoImpl implements UserDao {
 
 	@Override
 	public int getUserCountByHelper(UserQueryHelper helper) {
-		//this.jdbcUtils = new JdbcUtils();
+
 		int count = 0;
 		String sql = "select count(*) total from users_info where 1=1";
 		if (helper != null) {
@@ -89,7 +105,6 @@ public class UserDaoImpl implements UserDao {
 			this.jdbcUtils.getConnection();
 			count = this.jdbcUtils.getCountByPreparedStatement(sql);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			this.jdbcUtils.releaseConn();
@@ -97,27 +112,106 @@ public class UserDaoImpl implements UserDao {
 		return count;
 	}
 
-	@Override
-	public int test() {
-		//this.jdbcUtils = new JdbcUtils();
-		int count = 0;
 
+	/**
+	 * 用户登录后获取信息，<br/>
+	 * 返回1表示，用户名或密码错误<br/>
+	 * 返回2表示，网络异常<br/>
+	 * 没有状态返回，表示登录成功
+	 */
+	@Override
+	public Map<String, Object> login(String student_id, String pwd,
+			String school) {
+		User user = null;
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		List<Object> params = new ArrayList<Object>();
+		params.add(student_id);
+		params.add(pwd);
+		params.add(school);
 		try {
 			this.jdbcUtils.getConnection();
-			count = this.jdbcUtils.test();
+			String sql = "select * from users_info where student_id=? and pwd=? and school=?";
+			user = this.jdbcUtils.findSimpleRefResult(sql, params, User.class);
+			if (user == null) {
+				resultMap.put("isLogined", "false");
+				resultMap.put("state", "1");
+			} else {
+				resultMap.put("isLogined", "true");
+				resultMap.put("users_id", user.getUsers_id().toString());
+				resultMap.put("user", user);
+			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			resultMap.put("isLogined", "false");
+			resultMap.put("state", "2");
 			e.printStackTrace();
 		} finally {
 			this.jdbcUtils.releaseConn();
 		}
-		return count;
+		return resultMap;
+	}
+	
+	@Override
+	public int isUserExist(String student_id, String school) {
+		String pwd = "%%";
+		String sql = "select * from users_info where student_id=? and pwd like ? and school=?";
+		return this.isLoginTmp(student_id, pwd, school, sql);
 	}
 
+	/**
+	 * 
+	 * @param student_id
+	 * @param pwd
+	 * @param school
+	 * @param sql
+	 * @return 0,表示存在 1，表示不存在 ，2，表示数据库异常
+	 */
+	private int isLoginTmp(String student_id, String pwd, String school,
+			String sql) {
+		User user = null;
+		int flag = 1;
+		List<Object> params = new ArrayList<Object>();
+		params.add(student_id);
+		params.add(pwd);
+		params.add(school);
+		try {
+			this.jdbcUtils.getConnection();
+			user = this.jdbcUtils.findSimpleRefResult(sql, params, User.class);
+			if (user == null) {
+				flag = 1;
+			} else {
+				flag = 0;
+			}
+		} catch (Exception e) {
+			flag = 2;
+			e.printStackTrace();
+		} finally {
+			this.jdbcUtils.releaseConn();
+		}
+		return flag;
+	}
+
+
+
+	@Override
+	public boolean update(User user) {
+		List<Object> params = new ArrayList<Object>();
+		StringBuilder sql = new StringBuilder();
+		sql.append("update users_info set username=?,qq=?,email=?,phone=?,photo=? ");
+		sql.append("where users_id=? ");
+		params.add(user.getUsername());
+		params.add(user.getQq());
+		params.add(user.getEmail());
+		params.add(user.getPhone());
+		params.add(user.getPhoto());
+		params.add(user.getUsers_id());
+
+		return this.updataTmp(sql.toString(), params);
+	}
+	
+	
 	@Override
 	public boolean saveUserInfo(Map<String, String> stuInfo) {
-		//this.jdbcUtils = new JdbcUtils();
-		//boolean flag = false;
+
 		List<Object> params = new ArrayList<Object>();
 		StringBuilder sql = new StringBuilder();
 		sql.append("insert into users_info(users_id,student_id,school,realname,sex,department,special,classname,pwd,grade) ");
@@ -137,68 +231,18 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public boolean isUserExist(String student_id, String school) {
-		String pwd = "%%";
-		String sql = "select * from users_info where student_id=? and pwd like ? and school=?";
-		return this.isLoginTmp(student_id, pwd, school,sql);
-	}
+	public boolean updateSignature(User u) {
+		List<Object> params = new ArrayList<Object>();
+		StringBuilder sql = new StringBuilder();
+		sql.append("update users_info set signature=? ");
+		sql.append("where users_id=? ");
+		params.add(u.getSignature());
+		params.add(u.getUsers_id());
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	public Map<String , String> login(String student_id, String pwd, String school) {
-		//return this.isLoginTmp(student_id, pwd, school, sql);
-		User user = null;
-		//boolean flag = false;
-		Map<String , String> resultMap = new HashMap<String, String>();
-		List params = new ArrayList();
-		params.add(student_id);
-		params.add(pwd);
-		params.add(school);
-		try {
-			this.jdbcUtils.getConnection();
-			String sql = "select users_id from users_info where student_id=? and pwd=? and school=?";
-			user = this.jdbcUtils.findSimpleRefResult(sql, params, User.class);
-			if(user == null){
-				//flag =  false;
-				resultMap.put("isLogined", "false");
-			}else {
-				//flag = true;
-				resultMap.put("isLogined", "true");
-				resultMap.put("users_id", user.getUsers_id().toString());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			this.jdbcUtils.releaseConn();
-		}
-		return resultMap;
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private boolean isLoginTmp(String student_id, String pwd, String school,String sql){
-		User user = null;
-		boolean flag = false;
-		List params = new ArrayList();
-		params.add(student_id);
-		params.add(pwd);
-		params.add(school);
-		try {
-			this.jdbcUtils.getConnection();
-			user = this.jdbcUtils.findSimpleRefResult(sql, params, User.class);
-			if(user == null){
-				flag =  false;
-			}else {
-				flag = true;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			this.jdbcUtils.releaseConn();
-		}
-		return flag;
+		return this.updataTmp(sql.toString(), params);
 	}
 	
-	private boolean updataTmp(String sql,List<Object> params){
+	private boolean updataTmp(String sql, List<Object> params) {
 		boolean flag = false;
 		try {
 			this.jdbcUtils.getConnection();
@@ -210,20 +254,10 @@ public class UserDaoImpl implements UserDao {
 		}
 		return flag;
 	}
-
-	@Override
-	public boolean update(User user) {
-		List<Object> params = new ArrayList<Object>();
-		StringBuilder sql = new StringBuilder();
-		sql.append("update users_info set username=?,qq=?,email=?,phone=? ");
-		sql.append("where users_id=? ");
-		params.add(user.getUsername());
-		params.add(user.getQq());
-		params.add(user.getEmail());
-		params.add(user.getPhone());
-		params.add(user.getUsers_id());
-		
-		return this.updataTmp(sql.toString(), params);
-	}
 	
+	
+	
+
+
+
 }

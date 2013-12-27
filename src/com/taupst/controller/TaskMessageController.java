@@ -16,7 +16,7 @@ import com.taupst.util.Object2JsonUtil;
 import com.taupst.util.Page;
 
 @Controller
-@RequestMapping(value = "/taskmsg", produces = "application/json;charset=UTF-8")
+@RequestMapping(value = "/data/taskmsg", produces = "application/json;charset=UTF-8")
 public class TaskMessageController {
 
 	@Resource(name = "taskMesService")

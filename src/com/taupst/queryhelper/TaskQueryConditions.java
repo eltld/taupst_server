@@ -1,10 +1,11 @@
 package com.taupst.queryhelper;
 
 public class TaskQueryConditions {
-	
+
 	private String task_id;
 	private String level = "%%";
 	private String keywords = "%%";
+	private String school;
 
 	public TaskQueryConditions() {
 		super();
@@ -12,10 +13,10 @@ public class TaskQueryConditions {
 
 	public TaskQueryConditions(String level, String keywords) {
 		super();
-		if(level != null){
+		if (level != null) {
 			this.level = "%" + level + "%";
 		}
-		if(keywords != null){
+		if (keywords != null) {
 			this.keywords = "%" + keywords + "%";
 		}
 	}
@@ -42,6 +43,14 @@ public class TaskQueryConditions {
 
 	public void setTask_id(String task_id) {
 		this.task_id = task_id;
+	}
+
+	public String getSchool() {
+		return school;
+	}
+
+	public void setSchool(String school) {
+		this.school = school;
 	}
 
 }

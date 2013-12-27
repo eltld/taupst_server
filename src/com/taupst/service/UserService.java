@@ -7,12 +7,20 @@ import com.taupst.queryhelper.UserQueryHelper;
 import com.taupst.util.Page;
 
 public interface UserService {
-	
-	Page getUserByHelper(Page page,UserQueryHelper helper);
-    User getUserById(String user_id);
-    int test();
+
+	Page getUserByHelper(Page page, UserQueryHelper helper);
+
+	User getUserById(String user_id);
+
+	User getUser(String student_id, String pwd, String school);
+
+	int isUserExist(String student_id, String school);
+
 	boolean saveUserInfo(Map<String, String> stuInfo);
-	boolean isUserExist(String student_id, String school);
-	Map<String , String> login(String student_id, String pwd, String school);
+
 	boolean update(User user);
+
+	boolean updateSignature(User u);
+
+	Map<String, Object> login(String student_id, String pwd, String school);
 }

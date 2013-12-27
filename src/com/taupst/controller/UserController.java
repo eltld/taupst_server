@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
@@ -18,18 +19,19 @@ import com.taupst.model.User;
 import com.taupst.service.UserService;
 import com.taupst.util.MethodUtil;
 import com.taupst.util.Object2JsonUtil;
+import com.taupst.util.SessionUtil;
 import com.taupst.util.sync.Sysn;
 import com.taupst.util.sync.SysnFac;
 
 @Controller
-@RequestMapping(value = "/user", produces = "application/json;charset=UTF-8")
+@RequestMapping(value = "/data/user", produces = "application/json;charset=UTF-8")
 public class UserController {
 
 	private static Logger log = Logger
 			.getLogger(UserController.class.getName());
 
 	private static MethodUtil util = new MethodUtil();
-	
+
 	@Resource(name = "userService")
 	private UserService userService;
 
@@ -37,107 +39,184 @@ public class UserController {
 
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	@ResponseBody
-	public String login(User user, HttpServletResponse response) {
+	public String login(User user, HttpServletRequest request,
+			HttpServletResponse response) {
+
+		// 1表示用户名或密码错误，2表示数据库异常
 
 		// 判断该用户在数据库中是否存在
-		boolean isExist = userService.isUserExist(user.getStudent_id(),
+		int isExist = userService.isUserExist(user.getStudent_id(),
 				user.getSchool());
 
-		Map<String, String> returnMap = null;
+		Map<String, Object> returnMap = new HashMap<String, Object>();
 		// 该用户在数据库中存在
-		if (isExist == true) {
+		if (isExist == 0) {
+
 			log.debug("login from database ...");
+
 			returnMap = userService.login(user.getStudent_id(), user.getPwd(),
 					user.getSchool());
-		} else {
+
+			User u = (User) returnMap.get("user");
+			SessionUtil.setUser(request, u);
+			returnMap.remove("user");
+
+		} else if (isExist == 1) {
 			// 该用户在数据库中不存在，到教务系统中获取用户信息保存到数据库中
 			Sysn sysn = SysnFac.getConn(user.getSchool(), user.getStudent_id(),
 					user.getPwd());
 			Map<String, String> stuInfo = null;
 			try {
+
 				log.debug("login from net ...");
+
 				stuInfo = sysn.login();
 				// 该用户在教务系统中登录失败，表示用户名或密码错误。
 				if (stuInfo.get("isLoginSuccess").equals("true")) {
+
 					log.debug("login from net succeed");
+
 					stuInfo.put("pwd", user.getPwd());
 					stuInfo.put("school", user.getSchool());
 					stuInfo.put("users_id", util.getUUID());
 					// 该用户在教务系统中的信息保存到数据库中
+
 					log.debug("save user ...");
+
 					if (userService.saveUserInfo(stuInfo)) {
+
 						log.debug("save user succeed");
-						
+
 						returnMap = userService.login(user.getStudent_id(),
 								user.getPwd(), user.getSchool());
+
+						User u = (User) returnMap.get("user");
+						SessionUtil.setUser(request, u);
+						returnMap.remove("user");
+
 					} else {
+
 						log.debug("save user failed");
-						returnMap = new HashMap<String, String>();
+
 						returnMap.put("isLogined", "false");
+						returnMap.put("state", "2"); // 2 表示数据库异常
 					}
 				} else {
+
 					log.debug("login from net failed");
-					returnMap = new HashMap<String, String>();
+
 					returnMap.put("isLogined", "false");
+					returnMap.put("state", "1"); // 1 用户名密码错误
 				}
 			} catch (IOException e) {
+
 				log.debug("login from net failed in catch");
+
 				e.printStackTrace();
-				returnMap = new HashMap<String, String>();
 				returnMap.put("isLogined", "false");
+				returnMap.put("state", "2"); // 2 表示数据库异常
 			}
 
+		} else if (isExist == 2) {
+			returnMap.put("isLogined", "false");
+			returnMap.put("state", "2"); // 2 表示数据库异常
 		}
-		String jsonString = Object2JsonUtil.Object2Json(returnMap);
-		return jsonString;
+
+		return Object2JsonUtil.Object2Json(returnMap);
 	}
 
 	@RequestMapping(value = "/userInfo", method = RequestMethod.GET)
 	@ResponseBody
-	public String getUserInfo(String users_id, HttpServletResponse response) {
-		User user = userService.getUserById(users_id);
+	public String getUserInfo(User user, HttpServletRequest request,
+			HttpServletResponse response) {
 
-		String jsonString = Object2JsonUtil.Object2Json(user);
+		String users_id = user.getUsers_id();
+		
+		if (users_id != null && !users_id.equals("")) {
+			user = userService.getUserById(users_id);
+		} else {
+			user = (User) SessionUtil.getUser(request);
+		}
 
-		return jsonString;
+		return Object2JsonUtil.Object2Json(user);
+	}
+
+	@RequestMapping(value = "/exit", method = RequestMethod.GET)
+	@ResponseBody
+	public void Exit(HttpServletRequest request, HttpServletResponse response) {
+
+		try {
+			SessionUtil.removeSessionAll(request.getSession());
+			util.toJsonMsg(response, 0, null);
+		} catch (Exception e) {
+			util.toJsonMsg(response, 1, null);
+			e.printStackTrace();
+		}
+
 	}
 
 	@RequestMapping(value = "/update", method = RequestMethod.GET)
 	@ResponseBody
-	public void getUserInfo(User user, HttpServletResponse response) {
-		
+	public void updateUserInfo(User user, HttpServletRequest request,
+			HttpServletResponse response) {
+
 		// 判断昵称是否合法
-		if(this.isUserName(user.getUsername()) != true){
+		if (this.isUserName(user.getUsername()) != true) {
 			util.toJsonMsg(response, 1, "昵称错误，请重新填写！");
 			return;
 		}
 		// 判断电话号码是否合法
-		if(this.isPhone(user.getPhone()) != true){
+		if (this.isPhone(user.getPhone()) != true) {
 			util.toJsonMsg(response, 1, "电话号码不正确！");
 			return;
 		}
 		// 判断qq号码是否合法
-		if(this.isQq(user.getQq()) != true){
+		if (this.isQq(user.getQq()) != true) {
 			util.toJsonMsg(response, 1, "QQ号码不正确！");
 			return;
 		}
 		// 判断邮箱是否合法
-		if(this.isEmail(user.getEmail()) != true){
+		if (this.isEmail(user.getEmail()) != true) {
 			util.toJsonMsg(response, 1, "邮箱格式不正确！");
 			return;
 		}
+
+		User u = (User) SessionUtil.getUser(request);
+
+		user.setUsers_id(u.getUsers_id());
+
 		// 将用户数据插入到数据库中
-		if(userService.update(user) == true){
+		if (userService.update(user) == true) {
 			util.toJsonMsg(response, 0, "修改成功！");
+			u = userService.getUserById(u.getUsers_id());
+			SessionUtil.setUser(request, u);
 			return;
-		}else{
-			util.toJsonMsg(response, 0, "数据异常！");
+		} else {
+			util.toJsonMsg(response, 1, "网络超时！");
 			return;
 		}
 
-//		String jsonString = Object2JsonUtil.Object2Json(isUpdata);
-//
-//		return jsonString;
+	}
+
+	@RequestMapping(value = "/updateSignature", method = RequestMethod.GET)
+	@ResponseBody
+	public void getUserSignature(User user, HttpServletRequest request,
+			HttpServletResponse response) {
+
+		User u = (User) SessionUtil.getUser(request);
+
+		u.setSignature(user.getSignature());
+
+		// 将用户数据插入到数据库中
+		if (userService.updateSignature(u) == true) {
+			util.toJsonMsg(response, 0, "修改成功！");
+			SessionUtil.setUser(request, u);
+			return;
+		} else {
+			util.toJsonMsg(response, 1, "网络超时！");
+			return;
+		}
+
 	}
 
 	// 验证邮箱是否合法
@@ -169,50 +248,50 @@ public class UserController {
 			}
 		}
 	}
-	
+
 	// 判断QQ号码是否为true
-		public boolean isQq(String qq) {
-			if (qq == null || qq == "") {
+	public boolean isQq(String qq) {
+		if (qq == null || qq == "") {
+			return true;
+		} else {
+			String str = "^\\d{6,10}$";
+			bool = Pattern.compile(str).matcher(qq).find();
+			if (bool == true) {
 				return true;
 			} else {
-				String str = "^\\d{6,10}$";
-				bool = Pattern.compile(str).matcher(qq).find();
-				if (bool == true) {
+				return false;
+			}
+		}
+	}
+
+	// 判断username是否为true
+	public boolean isUserName(String username) {
+		// 允许出现的字符
+		String str = "!|！|@|◎|#|＃|(\\$)|￥|%|％|(\\^)|……|(\\&)|※|(\\*)|×|(\\()|（|(\\))|）|_|——|(\\+)|＋|(\\|)|§";
+
+		if (username == null || username.trim().equals("")) {
+			return false;
+		} else {
+			// 判断是否包含特殊字符 true是包含，false不包含
+			bool = Pattern.compile(str).matcher(username).find();
+			if (bool == true) {
+				return false;
+			} else {
+				if (username.length() > 0 && username.length() < 20) {
 					return true;
 				} else {
 					return false;
 				}
 			}
 		}
-		
-		// 判断username是否为true
-		public boolean isUserName(String username) {
-			// 允许出现的字符
-			String str = "!|！|@|◎|#|＃|(\\$)|￥|%|％|(\\^)|……|(\\&)|※|(\\*)|×|(\\()|（|(\\))|）|_|——|(\\+)|＋|(\\|)|§";
-			
-			if (username == null || username.trim().equals("")) {
-				return false;
-			} else {
-				// 判断是否包含特殊字符 true是包含，false不包含
-				bool = Pattern.compile(str).matcher(username).find();
-				if (bool == true) {
-					return false;
-				} else {
-					if(username.length() > 0 && username.length() < 20){
-						return true;
-					}else{
-						return false;
-					}
-				}
-			}
-		}
+	}
 
-		public static void main(String[] args) {
-			UserController u = new UserController();
-			// u.isQq("36475689868");
-			boolean b = u.isUserName("");
-			
-			System.out.println(u.util.getUUID());
-		}
-		
+	public static void main(String[] args) {
+		UserController u = new UserController();
+		// u.isQq("36475689868");
+		boolean b = u.isUserName("");
+
+		System.out.println(b);
+	}
+
 }
