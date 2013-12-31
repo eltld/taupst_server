@@ -1,0 +1,29 @@
+package com.taupst.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.taupst.model.User;
+import com.taupst.queryhelper.UserQueryHelper;
+
+public interface UserDao {
+	List<User> getUserByHelper(UserQueryHelper helper, int startIndex,
+			int endIndex);
+
+	User getUserById(String user_id);
+
+	User getUser(String student_id, String pwd, String school);
+
+	int isUserExist(String student_id, String school);
+
+	int getUserCountByHelper(UserQueryHelper helper);
+
+	boolean saveUserInfo(Map<String, String> stuInfo);
+
+	boolean update(User user);
+
+	boolean updateSignature(User u);
+
+	Map<String, Object> login(String student_id, String pwd, String school);
+
+}
