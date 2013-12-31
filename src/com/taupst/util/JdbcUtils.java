@@ -199,12 +199,10 @@ public class JdbcUtils {
 				/*if (cols_value == null) {
 					 cols_value = "";
 				}*/
-				
 				if (cols_value instanceof Date) {
 					SimpleDateFormat df = new SimpleDateFormat(
 							"yyyy-MM-dd HH:mm:ss");
 					cols_value = df.format(cols_value);
-					System.out.println(cols_value);
 				}
 				Field field = cls.getDeclaredField(cols_name);
 				field.setAccessible(true);

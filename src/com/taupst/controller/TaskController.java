@@ -1,5 +1,8 @@
 package com.taupst.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -9,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.taupst.model.Sign;
+import com.taupst.model.Task;
 import com.taupst.model.User;
 import com.taupst.queryhelper.TaskQueryConditions;
 import com.taupst.service.TaskService;
@@ -24,6 +27,8 @@ public class TaskController {
 	@Resource(name = "taskService")
 	private TaskService taskService;
 
+	private MethodUtil util = MethodUtil.getInstance();
+	
 	@RequestMapping(value = "/taskList2Up", method = RequestMethod.GET)
 	@ResponseBody
 	public String getTaskList2Up(TaskQueryConditions conditions,
@@ -59,6 +64,69 @@ public class TaskController {
 				type));
 
 	}
+	
+	/**
+	 * 
+	 * @param task
+	 * @param request
+	 * @param response
+	 * @return  
+	 * 		0.表示任务发布成功
+	 * 		1.表示任务发布失败，存在错误数据
+	 * 		2.表示网络超时
+	 */
+	@RequestMapping(value = "/save", method = RequestMethod.GET)
+	@ResponseBody
+	public String saveTask(Task task, HttpServletRequest request,
+			HttpServletResponse response) {
+		
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		
+		User user = (User) SessionUtil.getUser(request);
 
+		task.setUser_id(user.getUsers_id());
+		task.setTask_id(util.getUUID());
+		task.setTask_state(1);
+		task.setRelease_time(util.getDate(0, null));
+		
+		
+		String title = task.getTitle();
+		String content = task.getContent();
+		Integer level = task.getTask_level();
+		String end_of_time = task.getEnd_of_time();
+		String rewards = task.getRewards();
+		
+		if(title == null || title.trim().equals("")){
+			returnMap.put("msg", "亲，标题还没填写！");
+			returnMap.put("state", 1);
+			returnMap.put("success", false);
+			return Object2JsonUtil.Object2Json(returnMap);
+		}else if(content == null || content.trim().equals("")){
+			returnMap.put("msg", "亲，内容还没填写！");
+			returnMap.put("state", 1);
+			returnMap.put("success", false);
+			return Object2JsonUtil.Object2Json(returnMap);
+		}else if(end_of_time == null || end_of_time.trim().equals("")){
+			returnMap.put("msg", "亲，任务截止时间还没选！");
+			returnMap.put("state", 1);
+			returnMap.put("success", false);
+			return Object2JsonUtil.Object2Json(returnMap);
+		}else if(rewards == null || rewards.trim().equals("")){
+			returnMap.put("msg", "亲，报酬还没填！");
+			returnMap.put("state", 1);
+			returnMap.put("success", false);
+			return Object2JsonUtil.Object2Json(returnMap);
+		}else if(level == null){
+			returnMap.put("msg", "亲，任务等级还没填！");
+			returnMap.put("state", 1);
+			returnMap.put("success", false);
+			return Object2JsonUtil.Object2Json(returnMap);
+		}
+		
+		returnMap = taskService.save(task);
+		
+		return Object2JsonUtil.Object2Json(returnMap);
+
+	}
 
 }
