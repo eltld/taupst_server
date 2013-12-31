@@ -1,6 +1,5 @@
 package com.taupst.model;
 
-
 public class Task {
 	private String task_id;
 	private String user_id;
