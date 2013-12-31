@@ -59,6 +59,7 @@ public class TaskDaoImpl implements TaskDao {
 			task_id = task_id.substring(0, 17);
 		}
 		
+
 		params.add(conditions.getSchool());
 		params.add(conditions.getLevel());
 		params.add(conditions.getKeywords());
@@ -72,6 +73,7 @@ public class TaskDaoImpl implements TaskDao {
 		sql.append("LEFT JOIN sign s ON t.task_id = s.task_id ");
 		sql.append("LEFT JOIN users_info u ON u.users_id = t.users_id ");
 		sql.append("WHERE u.school=? AND t.task_level LIKE ? AND t.title LIKE ? ");
+
 		if(type == 1){
 			sql.append("AND SUBSTRING(t.task_id FROM 1 FOR 17) > ? ");
 			params.add(task_id);
