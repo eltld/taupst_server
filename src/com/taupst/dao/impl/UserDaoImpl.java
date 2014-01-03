@@ -208,6 +208,33 @@ public class UserDaoImpl implements UserDao {
 		return this.updataTmp(sql.toString(), params);
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean update(User user, Map<String, Object> map) {
+		
+		List<String> fileName = (List<String>) map.get("fileName");
+		List<Object> useFileValue = (List<Object>) map.get("fileValue");
+		
+		List<Object> params = new ArrayList<Object>();
+		StringBuilder sql = new StringBuilder();
+		sql.append("update users_info set ");
+		for (int i = 0; i < fileName.size(); i++) {
+			String fName = fileName.get(i);
+			if(i + 1 == fileName.size()){
+				sql.append(fName + "=? ");
+			}else{
+				sql.append(fName + "=?,");
+			}
+		}
+		sql.append("where users_id=? ");
+		for (Object o : useFileValue) {
+			params.add(o);
+		}
+		params.add(user.getUsers_id());
+
+		return this.updataTmp(sql.toString(), params);
+	}
+	
 	
 	@Override
 	public boolean saveUserInfo(Map<String, String> stuInfo) {
@@ -254,10 +281,6 @@ public class UserDaoImpl implements UserDao {
 		}
 		return flag;
 	}
-	
-	
-	
-
 
 
 }

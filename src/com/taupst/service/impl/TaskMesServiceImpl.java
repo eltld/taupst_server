@@ -21,4 +21,9 @@ public class TaskMesServiceImpl implements TaskMesService {
 		return this.taskMesDao.getTaskMesList(task_id,page);
 	}
 
+	@Override
+	public List<Map<String, Object>> getTMList(String task_id,String tm_id,int type) {
+		return this.taskMesDao.getTMList(task_id,tm_id,type);
+	}
+
 }

@@ -19,6 +19,7 @@ import com.taupst.model.User;
 import com.taupst.service.UserService;
 import com.taupst.util.MethodUtil;
 import com.taupst.util.Object2JsonUtil;
+import com.taupst.util.ReflectUtil;
 import com.taupst.util.SessionUtil;
 import com.taupst.util.sync.Sysn;
 import com.taupst.util.sync.SysnFac;
@@ -159,7 +160,16 @@ public class UserController {
 	@ResponseBody
 	public void updateUserInfo(User user, HttpServletRequest request,
 			HttpServletResponse response) {
-
+		
+		ReflectUtil reflectUtil = new ReflectUtil();
+		Map<String, Object> map = reflectUtil.getFieldAndValue(user);
+		
+		User u = (User) SessionUtil.getUser(request);
+		
+		user.setUsers_id(u.getUsers_id());
+		
+		//boolean f = userService.update(user,map);
+		
 		// 判断昵称是否合法
 		if (this.isUserName(user.getUsername()) != true) {
 			util.toJsonMsg(response, 1, "昵称错误，请重新填写！");
@@ -181,18 +191,16 @@ public class UserController {
 			return;
 		}
 
-		User u = (User) SessionUtil.getUser(request);
-
-		user.setUsers_id(u.getUsers_id());
+		
 
 		// 将用户数据插入到数据库中
-		if (userService.update(user) == true) {
+		if (userService.update(user,map) == true) {
 			util.toJsonMsg(response, 0, "修改成功！");
 			u = userService.getUserById(u.getUsers_id());
 			SessionUtil.setUser(request, u);
 			return;
 		} else {
-			util.toJsonMsg(response, 1, "网络超时！");
+			util.toJsonMsg(response, 2, "网络超时！");
 			return;
 		}
 
@@ -270,7 +278,7 @@ public class UserController {
 		String str = "!|！|@|◎|#|＃|(\\$)|￥|%|％|(\\^)|……|(\\&)|※|(\\*)|×|(\\()|（|(\\))|）|_|——|(\\+)|＋|(\\|)|§";
 
 		if (username == null || username.trim().equals("")) {
-			return false;
+			return true;
 		} else {
 			// 判断是否包含特殊字符 true是包含，false不包含
 			bool = Pattern.compile(str).matcher(username).find();
@@ -287,11 +295,18 @@ public class UserController {
 	}
 
 	public static void main(String[] args) {
-		UserController u = new UserController();
-		// u.isQq("36475689868");
-		boolean b = u.isUserName("");
-
-		System.out.println(b);
+		
+		ReflectUtil reflectUtil = new ReflectUtil();
+		User user = new User();
+		user.setUsername("hd");
+		user.setSchool("00001");
+		Map<String, Object> map = reflectUtil.getFieldAndValue(user);
+		
+		//String[] fileName = (String[]) map.get("fileName");
+		//Object[] useFileValue = (Object[]) map.get("fileValue");
+		
+		System.out.println(map);
 	}
 
+	
 }

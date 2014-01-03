@@ -22,6 +22,8 @@ public interface UserDao {
 
 	boolean update(User user);
 
+	boolean update(User user, Map<String, Object> map);
+
 	boolean updateSignature(User u);
 
 	Map<String, Object> login(String student_id, String pwd, String school);

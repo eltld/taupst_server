@@ -64,4 +64,9 @@ public class UserServiceImpl implements UserService {
 	public boolean updateSignature(User u) {
 		return this.userDao.updateSignature(u);
 	}
+
+	@Override
+	public boolean update(User user, Map<String, Object> map) {
+		return this.userDao.update(user, map);
+	}
 }
