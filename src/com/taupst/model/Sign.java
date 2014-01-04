@@ -7,6 +7,7 @@ public class Sign {
 	private String sign_time;
 	private String open_mes;
 	private Integer isexe;
+	private String message;
 
 	public String getSign_id() {
 		return sign_id;
@@ -54,6 +55,14 @@ public class Sign {
 
 	public void setIsexe(Integer isexe) {
 		this.isexe = isexe;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 }

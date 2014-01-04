@@ -4,52 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Repository;
 
 import com.taupst.dao.TaskMesDao;
-import com.taupst.util.JdbcUtils;
-import com.taupst.util.Page;
+import com.taupst.util.FinalVariable;
 
 @Repository("taskMesDao")
-public class TaskMesDaoImpl implements TaskMesDao{
+public class TaskMesDaoImpl extends BaseDao implements TaskMesDao{
 	
-	@Resource(name="jdbcUtils")
-	private JdbcUtils jdbcUtils;
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	public List<Map<String, Object>> getTaskMesList(String task_id,Page page) {
-		List<Map<String, Object>> tmList = new ArrayList<Map<String, Object>>();
-		List params = new ArrayList();
-		StringBuilder sql = new StringBuilder();
-		
-		sql.append("SELECT t1.photo,t1.username AS reply,t1.message_id,t1.message_content,t1.message_time,t1.to_who,u.username AS replied ");
-		sql.append("FROM (");
-		sql.append("SELECT u.photo,u.username,tm.message_id,tm.message_content,tm.message_time,tm.to_who ");
-		sql.append("FROM users_info u,task_message tm ");
-		sql.append("WHERE u.users_id = tm.users_id AND tm.task_id = ? ");
-		sql.append("ORDER BY tm.message_time DESC LIMIT ?,? ");
-		sql.append(") t1,users_info u ");
-		sql.append("WHERE u.users_id = t1.to_who ");
-		
-		params.add(task_id);
-		params.add(page.getPageNo());
-		params.add(page.getPageSize());
-		
-		try {
-			this.jdbcUtils.getConnection();
-			tmList = this.jdbcUtils.findMoreResult(sql.toString(), params);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			this.jdbcUtils.releaseConn();
-		}
-		return tmList;
-	}
-
 	@Override
 	public List<Map<String, Object>> getTMList(String task_id,String tm_id,int type) {
 		List<Map<String, Object>> tmList = new ArrayList<Map<String, Object>>();
@@ -76,15 +38,16 @@ public class TaskMesDaoImpl implements TaskMesDao{
 			sql.append("AND SUBSTRING(tm.message_id FROM 1 FOR 17) < ? ");
 			params.add(tm_id);
 		}
-		sql.append("ORDER BY tm.message_time DESC LIMIT 20 ");
+		sql.append("ORDER BY tm.message_time DESC LIMIT ? ");
 		sql.append(") t1,users_info u ");
 		sql.append("WHERE u.users_id = t1.to_who ");
+		
+		params.add(FinalVariable.PAGE_SIZE);
 		
 		try {
 			this.jdbcUtils.getConnection();
 			tmList = this.jdbcUtils.findMoreResult(sql.toString(), params);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			this.jdbcUtils.releaseConn();

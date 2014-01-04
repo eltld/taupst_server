@@ -5,22 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Repository;
 
 import com.taupst.dao.TaskDao;
 import com.taupst.model.Task;
 import com.taupst.queryhelper.TaskQueryConditions;
 import com.taupst.util.FinalVariable;
-import com.taupst.util.JdbcUtils;
 
 @Repository("taskDao")
-public class TaskDaoImpl implements TaskDao {
-
-	@Resource(name = "jdbcUtils")
-	private JdbcUtils jdbcUtils;
-
+public class TaskDaoImpl extends BaseDao implements TaskDao {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override

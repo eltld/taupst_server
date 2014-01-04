@@ -3,7 +3,6 @@ package com.taupst.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,20 +14,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.taupst.model.Task;
 import com.taupst.model.User;
 import com.taupst.queryhelper.TaskQueryConditions;
-import com.taupst.service.TaskService;
-import com.taupst.util.MethodUtil;
 import com.taupst.util.Object2JsonUtil;
 import com.taupst.util.SessionUtil;
 
 @Controller
 @RequestMapping(value = "/data/task", produces = "application/json;charset=UTF-8")
-public class TaskController {
+public class TaskController extends BaseController{
 
-	@Resource(name = "taskService")
-	private TaskService taskService;
-
-	private MethodUtil util = MethodUtil.getInstance();
-	
 	@RequestMapping(value = "/taskList2Up", method = RequestMethod.GET)
 	@ResponseBody
 	public String getTaskList2Up(TaskQueryConditions conditions,

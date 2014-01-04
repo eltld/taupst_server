@@ -3,7 +3,6 @@ package com.taupst.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,23 +13,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.taupst.model.Sign;
 import com.taupst.model.User;
-import com.taupst.service.SignService;
-import com.taupst.service.TaskService;
-import com.taupst.util.MethodUtil;
 import com.taupst.util.Object2JsonUtil;
 import com.taupst.util.SessionUtil;
 
 @Controller
 @RequestMapping(value = "/data/sign", produces = "application/json;charset=UTF-8")
-public class SignController {
-
-	private static MethodUtil util = new MethodUtil();
-
-	@Resource(name = "signService")
-	private SignService signService;
-
-	@Resource(name = "taskService")
-	private TaskService taskService;
+public class SignController extends BaseController{
 
 	/**
 	 * 

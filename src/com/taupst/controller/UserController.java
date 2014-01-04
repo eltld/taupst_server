@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.taupst.model.User;
-import com.taupst.service.UserService;
-import com.taupst.util.MethodUtil;
 import com.taupst.util.Object2JsonUtil;
 import com.taupst.util.ReflectUtil;
 import com.taupst.util.SessionUtil;
@@ -26,15 +23,10 @@ import com.taupst.util.sync.SysnFac;
 
 @Controller
 @RequestMapping(value = "/data/user", produces = "application/json;charset=UTF-8")
-public class UserController {
+public class UserController extends BaseController{
 
 	private static Logger log = Logger
 			.getLogger(UserController.class.getName());
-
-	private static MethodUtil util = new MethodUtil();
-
-	@Resource(name = "userService")
-	private UserService userService;
 
 	private boolean bool;
 
@@ -224,7 +216,6 @@ public class UserController {
 			util.toJsonMsg(response, 1, "网络超时！");
 			return;
 		}
-
 	}
 
 	// 验证邮箱是否合法

@@ -3,7 +3,6 @@ package com.taupst.controller;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,15 +12,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.taupst.model.TaskMessage;
-import com.taupst.service.TaskMesService;
 import com.taupst.util.Object2JsonUtil;
 
 @Controller
 @RequestMapping(value = "/data/taskmsg", produces = "application/json;charset=UTF-8")
-public class TaskMessageController {
+public class TaskMessageController extends BaseController{
 
-	@Resource(name = "taskMesService")
-	private TaskMesService taskMesService;
 
 	@RequestMapping(value = "/taskMsgList2Down", method = RequestMethod.GET)
 	@ResponseBody

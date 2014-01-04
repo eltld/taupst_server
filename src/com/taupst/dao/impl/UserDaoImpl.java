@@ -5,25 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Repository;
 
 import com.taupst.dao.UserDao;
 import com.taupst.model.User;
 import com.taupst.queryhelper.UserQueryHelper;
-import com.taupst.util.JdbcUtils;
 
 @Repository("userDao")
-public class UserDaoImpl implements UserDao {
-	@Resource(name = "jdbcUtils")
-	private JdbcUtils jdbcUtils;
+public class UserDaoImpl extends BaseDao implements UserDao {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<User> getUserByHelper(UserQueryHelper helper, int startIndex,
 			int endIndex) {
-		// this.jdbcUtils = new JdbcUtils();
 		List<User> userList = null;
 		String sql = "select * from users_info where 1=1";
 		if (helper != null) {

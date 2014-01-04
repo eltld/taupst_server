@@ -5,21 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Repository;
 
 import com.taupst.dao.SignDao;
 import com.taupst.model.Sign;
-import com.taupst.util.JdbcUtils;
 
 
 @Repository("signDao")
-public class SignDaoImpl implements SignDao {
+public class SignDaoImpl extends BaseDao implements SignDao {
 
-	@Resource(name = "jdbcUtils")
-	private JdbcUtils jdbcUtils;
-	
 	@Override
 	public Map<String, Object> save(Sign sign) {
 		
@@ -28,8 +22,8 @@ public class SignDaoImpl implements SignDao {
 		List<Object> params = new ArrayList<Object>();
 		
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into `sign`(sign_id,task_id,users_id,sign_time,open_mes,isexe) ");
-		sql.append("values(?,?,?,?,?,?) ");
+		sql.append("insert into `sign`(sign_id,task_id,users_id,sign_time,open_mes,isexe,message) ");
+		sql.append("values(?,?,?,?,?,?,?) ");
 		
 		params.add(sign.getSign_id());
 		params.add(sign.getTask_id());
@@ -37,6 +31,7 @@ public class SignDaoImpl implements SignDao {
 		params.add(sign.getSign_time());
 		params.add(sign.getOpen_mes());
 		params.add(sign.getIsexe());
+		params.add(sign.getMessage());
 		
 		try {
 			this.jdbcUtils.getConnection();

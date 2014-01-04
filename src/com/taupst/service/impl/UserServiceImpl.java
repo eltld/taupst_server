@@ -2,11 +2,8 @@ package com.taupst.service.impl;
 
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Service;
 
-import com.taupst.dao.UserDao;
 import com.taupst.model.User;
 import com.taupst.queryhelper.UserQueryHelper;
 import com.taupst.service.UserService;
@@ -14,9 +11,7 @@ import com.taupst.util.Page;
 
 
 @Service("userService")
-public class UserServiceImpl implements UserService {
-	@Resource(name="userDao")
-	private UserDao userDao;
+public class UserServiceImpl extends BaseService implements UserService {
 
 	@Override
 	public User getUserById(String userId) {
