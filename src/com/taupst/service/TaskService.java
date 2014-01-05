@@ -15,5 +15,7 @@ public interface TaskService {
 
 	Map<String, Object> save(Task task);
 
+	boolean updateTaskState();
+
 
 }

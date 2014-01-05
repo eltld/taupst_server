@@ -15,4 +15,6 @@ public interface TaskDao {
 
 	Map<String, Object> save(Task task);
 
+	boolean updateTaskState();
+
 }

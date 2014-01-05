@@ -101,10 +101,10 @@ public class SignDaoImpl extends BaseDao implements SignDao {
 							flag = 1;//表示已经接过的任务
 						}
 						break;
-					case 2:
+/*					case 2:
 						flag = 4;//表示任务已经过期了
 						break;
-					case 3:
+*/					case 3:
 						flag = 5;//表示任务已经完成了
 						break;
 					}

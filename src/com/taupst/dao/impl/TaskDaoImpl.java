@@ -1,5 +1,6 @@
 package com.taupst.dao.impl;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import com.taupst.dao.TaskDao;
 import com.taupst.model.Task;
 import com.taupst.queryhelper.TaskQueryConditions;
 import com.taupst.util.FinalVariable;
+import com.taupst.util.MethodUtil;
 
 @Repository("taskDao")
 public class TaskDaoImpl extends BaseDao implements TaskDao {
@@ -130,6 +132,32 @@ public class TaskDaoImpl extends BaseDao implements TaskDao {
 			e.printStackTrace();
 		}
 		return returnMap;
+	}
+
+	@Override
+	public boolean updateTaskState() {
+
+		boolean flag = false;
+		
+		StringBuilder sql = new StringBuilder();
+		
+		MethodUtil util = MethodUtil.getInstance();
+		String date = util.getDate(0, null);
+		
+		sql.append("update task set task_state=2 where task_state=1 and end_of_time<?");
+		
+		List<Object> params = new ArrayList<Object>();
+		
+		params.add(date);
+		
+		try {
+			jdbcUtils.getConnection();
+			flag = jdbcUtils.updateByPreparedStatement(sql.toString(), params);
+		} catch (SQLException e) {
+			flag = false;
+			e.printStackTrace();
+		}
+		return flag;
 	}
 
 

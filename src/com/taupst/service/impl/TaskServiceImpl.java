@@ -27,5 +27,10 @@ public class TaskServiceImpl extends BaseService implements TaskService {
 		return this.taskDao.save(task);
 	}
 
+	@Override
+	public boolean updateTaskState() {
+		return this.taskDao.updateTaskState();
+	}
+
 
 }

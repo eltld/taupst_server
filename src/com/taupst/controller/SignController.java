@@ -75,12 +75,12 @@ public class SignController extends BaseController{
 			returnMap.put("success", false);
 			returnMap.put("msg", "亲，不能报名自己发布的任务！");
 			break;
-		case 4:// 当前用户发布的任务！
+		/*case 4:// 任务已经过期！
 			returnMap.put("state", 4);
 			returnMap.put("success", false);
 			returnMap.put("msg", "亲，该任务已经过期了！");
-			break;
-		case 5:// 当前用户发布的任务！
+			break;*/
+		case 5:// 任务已经完成！
 			returnMap.put("state", 5);
 			returnMap.put("success", false);
 			returnMap.put("msg", "亲，该任务已经完成了！");
@@ -132,9 +132,9 @@ public class SignController extends BaseController{
 		case 3:// 当前用户发布的任务！
 			returnMap.put("state", 3);
 			break;
-		case 4:// 表示任务已经过期了！
+		/*case 4:// 表示任务已经过期了！
 			returnMap.put("state", 4);
-			break;
+			break;*/
 		case 5:// 表示任务已经完成了！
 			returnMap.put("state", 5);
 			break;
