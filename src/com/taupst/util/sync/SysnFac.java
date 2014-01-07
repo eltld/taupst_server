@@ -6,6 +6,8 @@ public class SysnFac {
 			return new FjutSysn(userName, password);
 		}else if (school.equals("00002")){
 			return new FjnuSysn(userName, password);
+		}else if (school.equals("00003")){
+			return new FjuSysn(userName, password);
 		}else{
 			return null;
 		}

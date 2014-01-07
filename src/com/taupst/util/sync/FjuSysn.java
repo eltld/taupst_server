@@ -7,37 +7,27 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.taupst.util.JdbcUtils;
-
-@SuppressWarnings("deprecation")
 public class FjuSysn implements Sysn {
-	
-	private static Logger log = Logger.getLogger(FjuSysn.class.getName());
-	
+
 	private String userName;
 	private String password;
 
-	private DefaultHttpClient httpClient;
-
-	public FjuSysn() {
-		super();
-	}
+	private CloseableHttpClient httpClient;
 
 	public FjuSysn(String userName, String password) {
 		super();
@@ -49,38 +39,25 @@ public class FjuSysn implements Sysn {
 	@Override
 	public Map<String, String> login() throws ClientProtocolException,
 			IOException {
-		log.debug(JdbcUtils.class.getName() + " start ...");
-		this.httpClient = new DefaultHttpClient();
-		
-		
-//		HttpPost httpPost1 = new HttpPost(
-//				"http://59.77.226.32/logincheck.asp");
-		//HttpResponse httpResponse1 = null;
-		//httpResponse1 = httpClient.execute(httpPost1);
-		//HttpEntity content2 = httpResponse1.getEntity();
-		//String html1 = EntityUtils.toString(content2);
+		Map<String, String> map = new HashMap<String, String>();
+		// String userName = "021000804";
+		// String password = "159753";
 
-		//Document doc1 = Jsoup.parse(html1);
-		//Elements __VIEWSTATE = doc1.select("input[name=__VIEWSTATE]");
-		//log.debug(FjuSysn.class.getName() + "    " +__VIEWSTATE.val());
-		
-		
+		// HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+		// CloseableHttpClient httpClient =httpClientBuilder.build(); 这种方式也可以。
+		this.httpClient = HttpClients.createDefault();
+
 		Map<String, String> loginParams = new HashMap<String, String>();
-		Map<String, String> info = new HashMap<String, String>();
-//		loginParams
-//				.put("__VIEWSTATE",__VIEWSTATE.val());
 
-		//loginParams.put("Button1", "");
-		//loginParams.put("RadioButtonList1", "学生");
-		loginParams.put("muser", userName);
-		loginParams.put("passwd", password);
-
-		HttpPost httpPost = new HttpPost(
-				"http://59.77.226.32/logincheck.asp");
-		HttpResponse httpResponse = null;
+		loginParams.put("muser", this.userName);
+		loginParams.put("passwd", this.password);
+		loginParams.put("x", "30");
+		loginParams.put("y", "20");
+		HttpPost httpPost = new HttpPost("http://59.77.226.32/logincheck.asp");
+		CloseableHttpResponse httpResponse = null;
 		// httpPost.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS,false);
 		// 加入请求参数
-		
+
 		List<NameValuePair> paramList = new ArrayList<NameValuePair>();
 		for (String key : loginParams.keySet()) {
 			if (key != null) {
@@ -91,107 +68,136 @@ public class FjuSysn implements Sysn {
 		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paramList,
 				"gb2312");
 		httpPost.setEntity(entity);
+		httpPost.setHeader("Referer", "http://jwch.fzu.edu.cn/");
+		httpPost.setHeader("Host", "59.77.226.32");
 		httpResponse = httpClient.execute(httpPost);
 
-		HttpEntity content = httpResponse.getEntity();
-		String html = EntityUtils.toString(content);
+		HttpEntity httpEntity = httpResponse.getEntity();
+		String html = EntityUtils.toString(httpEntity);
+		// System.out.println(html);
 
 		Document doc = Jsoup.parse(html);
+
+		Elements els = doc.select("a");
+		String url_get = els.attr("href");
+		// System.out.println(url_get);
+
+		doc = Jsoup.parse(html);
+
 		Elements titles = doc.getElementsByTag("title");
 		String titleContent = "";
 		for (Element title : titles) {
 			titleContent = title.text();
 
 		}
-		
-		Elements els = doc.select("a");
-		String url_get = els.attr("href");
-		
-		content.consumeContent();
-		
+
+		// 判断账号是否错误，
+		// titleContent.equals("Object moved")==true 表示账号正确，密码待定
+		// titleContent.equals("Object moved")==false 表示账号错误，
 		if (titleContent.equals("Object moved")) {
-			log.debug(JdbcUtils.class.getName() + " login net succeed ...");
-			System.out.println("登入成功！！！！！！");
-			info.put("isLoginSuccess", "true");
 
-			String url_getName = "http://59.77.226.34/xszy/jcxx/xsxx/grxx_view.asp";
-			String url = null;
-			HttpGet httpGet_getName = new HttpGet(url_getName);
-			// httpGet_getName.setHeader("Referer",
-			// "http://jwgl.fjnu.edu.cn/default5.aspx");
-			HttpResponse httpResponse_getName = httpClient
-					.execute(httpGet_getName);
-			HttpEntity content_getName = httpResponse_getName.getEntity();
-			html = EntityUtils.toString(content_getName);
-			doc = Jsoup.parse(html);
-			Element xhxm = doc.getElementById("xhxm");
-			String xm = xhxm.text().replace(this.userName + " ", "")
-					.replace("同学", "");
-			url = "http://jwgl.fjnu.edu.cn/xsgrxx.aspx?xh=" + this.userName
-					+ "&xm=" + xm + "&gnmkdm=N121501";
-			HttpGet httpGet = new HttpGet(url);
-			// httpGet.setHeader("Host","jwgl.fjnu.edu.cn");
-			httpGet.setHeader("Referer",
-					"http://jwgl.fjnu.edu.cn/xs_main.aspx?xh=" + this.userName);
-			HttpResponse httpResponse_result = httpResponse_getName = httpClient
-					.execute(httpGet);
-			HttpEntity content1 = httpResponse_result.getEntity();
-			html = EntityUtils.toString(content1);
+			HttpGet httpGet = new HttpGet(url_get);
+			httpGet.setHeader("Referer", "http://jwch.fzu.edu.cn/");
+			httpGet.setHeader("Host", "59.77.226.34");
+			httpResponse = httpClient.execute(httpGet);
+			// httpResponse.setHeader("Content-type",
+			// "text/html;charset=gb2312");
+			httpEntity = httpResponse.getEntity();
+			html = EntityUtils.toString(httpEntity);
+
+			// System.out.println(new
+			// String(html.getBytes("ISO8859-1"),"GB2312"));
+
+			HttpGet httpGet1 = new HttpGet(
+					"http://59.77.226.34/xszy/jcxx/xsxx/grxx_view.asp");// 获取用户信息URL
+
+			httpResponse = httpClient.execute(httpGet1);
+			httpEntity = httpResponse.getEntity();
+			html = EntityUtils.toString(httpEntity);
+			// System.out.println(new String(html.getBytes("ISO8859-1"),
+			// "GB2312"));
+			httpResponse.close();
+			httpClient.close();
+			html = new String(html.getBytes("ISO8859-1"), "GB2312");
+
 			doc = Jsoup.parse(html);
 
-			System.out.println("姓名：" + xm);
-			info.put("xm", xm);
-			System.out.println("学号：" + this.userName);
-			info.put("student_id", this.userName);
+			Elements es = doc.select("title");
+			// 判断密码是否错误，es.hasText()==true则密码正确，es.hasText()==false则密码错误
+			if (es.hasText()) {
+				map.put("isLoginSuccess", "true");
 
-			Elements XB = doc.select("#XB > option[selected]");
-			String sex = XB.attr("value");
-			System.out.println("性别：" + XB.attr("value"));
-			info.put("lbl_xb", sex);
-			Element lbl_csrq = doc.getElementById("csrq");
-			System.out.println("出生日期：" + lbl_csrq.val());
-			info.put("lbl_csrq", lbl_csrq.text());
-			Element lbl_byzx = doc.getElementById("byzx");
-			System.out.println("毕业中学：" + lbl_byzx.val());
-			info.put("lbl_byzx", lbl_byzx.text());
-			//Element lbl_mz = doc.getElementById("mz");
-			Elements lbl_mz = doc.select("#mz > option[selected]");
-			System.out.println("名族：" + lbl_mz.attr("value"));
-			info.put("lbl_mz", lbl_mz.attr("value"));
-			//Element lbl_zzmm = doc.getElementById("zzmm");
-			Elements lbl_zzmm = doc.select("#zzmm > option[selected]");
-			System.out.println("政治面貌：" + lbl_zzmm.attr("value"));
-			info.put("lbl_zzmm", lbl_zzmm.attr("value"));
-			Element lbl_sfzh = doc.getElementById("sfzh");
-			System.out.println("身份证号码：" + lbl_sfzh.val());
-			info.put("lbl_sfzh", lbl_sfzh.text());
-			Element lbl_xy = doc.getElementById("lbl_xy");
-			System.out.println("学院：" + lbl_xy.text());
-			info.put("lbl_xy", lbl_xy.text());
-			Element lbl_zymc = doc.getElementById("lbl_zymc");
-			System.out.println("专业：" + lbl_zymc.text());
-			info.put("lbl_zymc", lbl_zymc.text());
-			Element lbl_xzb = doc.getElementById("lbl_xzb");
-			System.out.println("班级：" + lbl_xzb.text());
-			info.put("lbl_xzb", lbl_xzb.text());
-			Element lbl_dqszj = doc.getElementById("lbl_dqszj");
-			System.out.println("入学年份：" + lbl_dqszj.text());
-			info.put("lbl_dqszj", lbl_dqszj.text());
+				els = doc.select("table");
+				// 获取第三个table
+				Element el = els.get(2);
 
-			content1.consumeContent();
+				els = el.select("tr");
+				Element elTmp = null;
+				Elements elTmps = null;
 
+				// 获取第一个tr
+				elTmp = els.get(0);
+				elTmps = elTmp.children();
+				// 学号
+				elTmp = elTmps.get(1);
+				String student_id = elTmp.html();
+				map.put("student_id", student_id);
+				System.out.println("学号:" + student_id);
+				// 姓名
+				elTmp = elTmps.get(3);
+				String xm = elTmp.html();
+				map.put("xm", xm);
+				System.out.println("姓名:" + xm);
+				// 获取第二个tr
+				elTmp = els.get(1);
+				elTmps = elTmp.children();
+				// 性别
+				elTmp = elTmps.get(3);
+				String lbl_xb = elTmp.html();
+				map.put("lbl_xb", lbl_xb);
+				System.out.println("性别:" + lbl_xb);
+
+				// 获取第九个tr
+				elTmp = els.get(8);
+				elTmps = elTmp.children();
+				// 学院
+				elTmp = elTmps.get(1);
+				String lbl_xy = elTmp.html();
+				map.put("lbl_xy", lbl_xy);
+				System.out.println("学院:" + lbl_xy);
+				// 专业
+				elTmp = elTmps.get(3);
+				String lbl_zymc = elTmp.html();
+				map.put("lbl_zymc", lbl_zymc);
+				System.out.println("专业:" + lbl_zymc);
+
+				// 获取第十个tr
+				elTmp = els.get(9);
+				elTmps = elTmp.children();
+				// 年级
+				elTmp = elTmps.get(1);
+				String lbl_dqszj = elTmp.html();
+				map.put("lbl_dqszj", lbl_dqszj);
+				System.out.println("年级:" + lbl_dqszj);
+				// 班级
+				elTmp = elTmps.get(3);
+				String lbl_xzb = elTmp.html();
+				map.put("lbl_xzb", lbl_xzb);
+				System.out.println("班级:" + lbl_xzb);
+			} else {
+				map.put("isLoginSuccess", "false");
+			}
 		} else {
-			log.debug(JdbcUtils.class.getName() + " login net failed ...");
-			System.out.println("登入失败！！！！！！");
-			info.put("isLoginSuccess", "false");
+			map.put("isLoginSuccess", "false");
 		}
-		return info;
-	}
-	
-	public static void main(String[] args) throws ClientProtocolException, IOException {
-		FjuSysn f = new FjuSysn("021000804", "159753");
-		
-		f.login();
+
+		return map;
 	}
 
+	public static void main(String[] args) throws ClientProtocolException,
+			IOException {
+		FjuSysn f = new FjuSysn("021000804", "159753");
+		Map<String, String> m = f.login();
+		System.out.println(m);
+	}
 }

@@ -165,7 +165,6 @@ public class JdbcUtils {
 					SimpleDateFormat df = new SimpleDateFormat(
 							"yyyy-MM-dd HH:mm:ss");
 					cols_value = df.format(cols_value);
-					System.out.println(cols_value);
 				}
 				if (cols_value == null) {
 					cols_value = "";
@@ -257,7 +256,6 @@ public class JdbcUtils {
 			try {
 				resultSet.close();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -265,7 +263,6 @@ public class JdbcUtils {
 			try {
 				stmt.close();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -273,7 +270,6 @@ public class JdbcUtils {
 			try {
 				pstmt.close();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -281,7 +277,6 @@ public class JdbcUtils {
 			try {
 				connection.close();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

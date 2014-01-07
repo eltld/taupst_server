@@ -7,7 +7,8 @@ public class TaskMessage {
 	private String task_id;
 	private String message_content;
 	private String message_time;
-	private String to_who;
+	private String to_user;
+	private String root_id;
 
 	public String getMessage_id() {
 		return message_id;
@@ -49,12 +50,20 @@ public class TaskMessage {
 		this.message_time = message_time;
 	}
 
-	public String getTo_who() {
-		return to_who;
+	public String getTo_user() {
+		return to_user;
 	}
 
-	public void setTo_who(String to_who) {
-		this.to_who = to_who;
+	public void setTo_user(String to_user) {
+		this.to_user = to_user;
+	}
+
+	public String getRoot_id() {
+		return root_id;
+	}
+
+	public void setRoot_id(String root_id) {
+		this.root_id = root_id;
 	}
 
 }

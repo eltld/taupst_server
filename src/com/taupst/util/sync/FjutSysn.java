@@ -7,13 +7,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -25,7 +26,7 @@ import org.jsoup.select.Elements;
 public class FjutSysn implements Sysn {
 	private String userName;
 	private String password;
-	private DefaultHttpClient httpClient;
+	private CloseableHttpClient httpClient;
 
 	public FjutSysn() {
 		super();
@@ -40,7 +41,7 @@ public class FjutSysn implements Sysn {
 	@Override
 	public Map<String, String> login() throws ClientProtocolException,
 			IOException {
-		this.httpClient = new DefaultHttpClient();
+		this.httpClient = HttpClients.createDefault();
 		Map<String, String> loginParams = new HashMap<String, String>();
 		Map<String, String> info = new HashMap<String, String>();
 		loginParams.put("__VIEWSTATE",
@@ -53,7 +54,7 @@ public class FjutSysn implements Sysn {
 
 		HttpPost httpPost = new HttpPost(
 				"http://jiaowu1.fjut.edu.cn/default2.aspx");
-		HttpResponse httpResponse = null;
+		CloseableHttpResponse httpResponse = null;
 		// httpPost.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS,false);
 		// 加入请求参数
 
@@ -89,7 +90,7 @@ public class FjutSysn implements Sysn {
 					+ this.userName;
 			String url = null;
 			HttpGet httpGet_getName = new HttpGet(url_getName);
-			HttpResponse httpResponse_getName = httpClient
+			CloseableHttpResponse httpResponse_getName = httpClient
 					.execute(httpGet_getName);
 			HttpEntity content_getName = httpResponse_getName.getEntity();
 			html = EntityUtils.toString(content_getName);
@@ -103,7 +104,7 @@ public class FjutSysn implements Sysn {
 			httpGet.setHeader("Referer",
 					"http://jiaowu1.fjut.edu.cn/xs_main.aspx?xh="
 							+ this.userName);
-			HttpResponse httpResponse_result = httpResponse_getName = httpClient
+			CloseableHttpResponse httpResponse_result = httpResponse_getName = httpClient
 					.execute(httpGet);
 			HttpEntity content1 = httpResponse_result.getEntity();
 			html = EntityUtils.toString(content1);

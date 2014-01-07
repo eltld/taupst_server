@@ -7,14 +7,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
@@ -33,7 +33,7 @@ public class FjnuSysn implements Sysn {
 	private String userName;
 	private String password;
 
-	private DefaultHttpClient httpClient;
+	private CloseableHttpClient httpClient;
 
 	public FjnuSysn() {
 		super();
@@ -50,12 +50,12 @@ public class FjnuSysn implements Sysn {
 	public Map<String, String> login() throws ClientProtocolException,
 			IOException {
 		log.debug(JdbcUtils.class.getName() + " start ...");
-		this.httpClient = new DefaultHttpClient();
+		this.httpClient = HttpClients.createDefault();
 		
 		
 		HttpPost httpPost1 = new HttpPost(
 				"http://jwgl.fjnu.edu.cn/default5.aspx");
-		HttpResponse httpResponse1 = null;
+		CloseableHttpResponse httpResponse1 = null;
 		httpResponse1 = httpClient.execute(httpPost1);
 		HttpEntity content2 = httpResponse1.getEntity();
 		String html1 = EntityUtils.toString(content2);
@@ -77,7 +77,7 @@ public class FjnuSysn implements Sysn {
 
 		HttpPost httpPost = new HttpPost(
 				"http://jwgl.fjnu.edu.cn/default5.aspx");
-		HttpResponse httpResponse = null;
+		CloseableHttpResponse httpResponse = null;
 		// httpPost.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS,false);
 		// 加入请求参数
 		
@@ -116,7 +116,7 @@ public class FjnuSysn implements Sysn {
 			HttpGet httpGet_getName = new HttpGet(url_getName);
 			// httpGet_getName.setHeader("Referer",
 			// "http://jwgl.fjnu.edu.cn/default5.aspx");
-			HttpResponse httpResponse_getName = httpClient
+			CloseableHttpResponse httpResponse_getName = httpClient
 					.execute(httpGet_getName);
 			HttpEntity content_getName = httpResponse_getName.getEntity();
 			html = EntityUtils.toString(content_getName);
@@ -130,7 +130,7 @@ public class FjnuSysn implements Sysn {
 			// httpGet.setHeader("Host","jwgl.fjnu.edu.cn");
 			httpGet.setHeader("Referer",
 					"http://jwgl.fjnu.edu.cn/xs_main.aspx?xh=" + this.userName);
-			HttpResponse httpResponse_result = httpResponse_getName = httpClient
+			CloseableHttpResponse httpResponse_result = httpResponse_getName = httpClient
 					.execute(httpGet);
 			HttpEntity content1 = httpResponse_result.getEntity();
 			html = EntityUtils.toString(content1);
