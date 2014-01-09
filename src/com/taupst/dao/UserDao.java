@@ -1,14 +1,11 @@
 package com.taupst.dao;
 
-import java.util.List;
 import java.util.Map;
 
 import com.taupst.model.User;
 import com.taupst.queryhelper.UserQueryHelper;
 
 public interface UserDao {
-	List<User> getUserByHelper(UserQueryHelper helper, int startIndex,
-			int endIndex);
 
 	User getUserById(String user_id);
 

@@ -3,12 +3,8 @@ package com.taupst.service;
 import java.util.Map;
 
 import com.taupst.model.User;
-import com.taupst.queryhelper.UserQueryHelper;
-import com.taupst.util.Page;
 
 public interface UserService {
-
-	Page getUserByHelper(Page page, UserQueryHelper helper);
 
 	User getUserById(String user_id);
 

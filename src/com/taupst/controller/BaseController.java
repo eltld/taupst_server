@@ -2,6 +2,7 @@ package com.taupst.controller;
 
 import javax.annotation.Resource;
 
+import com.taupst.service.RankingService;
 import com.taupst.service.SignService;
 import com.taupst.service.TaskMesService;
 import com.taupst.service.TaskService;
@@ -23,4 +24,7 @@ public abstract class BaseController {
 	
 	@Resource(name="signService")
 	protected SignService signService;
+	
+	@Resource(name="rankingService")
+	protected RankingService rankingService;
 }

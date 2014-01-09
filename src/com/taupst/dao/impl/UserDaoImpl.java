@@ -15,35 +15,6 @@ import com.taupst.queryhelper.UserQueryHelper;
 @Repository("userDao")
 public class UserDaoImpl extends BaseDao implements UserDao {
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<User> getUserByHelper(UserQueryHelper helper, int startIndex,
-			int endIndex) {
-		List<User> userList = null;
-		String sql = "select * from users_info where 1=1";
-		if (helper != null) {
-			if (helper.getStudent_id() != null)
-				sql += " and student_id='" + helper.getStudent_id() + "'";
-			if (helper.getDepartment() != null)
-				sql += " and department='" + helper.getDepartment() + "'";
-			if (helper.getRealname() != null)
-				sql += " and realname='" + helper.getRealname() + "'";
-		}
-		sql += " limit ?,?";
-		List params = new ArrayList();
-		params.add(startIndex);
-		params.add(endIndex - startIndex);
-		try {
-			this.jdbcUtils.getConnection();
-			userList = this.jdbcUtils
-					.findMoreRefResult(sql, params, User.class);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			this.jdbcUtils.releaseConn();
-		}
-		return userList;
-	}
 
 	@Override
 	public User getUserById(String userId) {

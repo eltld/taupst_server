@@ -213,7 +213,7 @@ public class UserController extends BaseController{
 			SessionUtil.setUser(request, u);
 			return;
 		} else {
-			util.toJsonMsg(response, 1, "网络超时！");
+			util.toJsonMsg(response, 2, "网络超时！");
 			return;
 		}
 	}
@@ -287,16 +287,18 @@ public class UserController extends BaseController{
 
 	public static void main(String[] args) {
 		
-		ReflectUtil reflectUtil = new ReflectUtil();
-		User user = new User();
-		user.setUsername("hd");
-		user.setSchool("00001");
-		Map<String, Object> map = reflectUtil.getFieldAndValue(user);
+		//ReflectUtil reflectUtil = new ReflectUtil();
+		//User user = new User();
+		//user.setUsername("hd");
+		//user.setSchool("00001");
+		//Map<String, Object> map = reflectUtil.getFieldAndValue(user);
 		
 		//String[] fileName = (String[]) map.get("fileName");
 		//Object[] useFileValue = (Object[]) map.get("fileValue");
 		
-		System.out.println(map);
+		//UserController userController = new UserController();
+		
+		//System.out.println(userController.util.getUUID());
 	}
 
 	

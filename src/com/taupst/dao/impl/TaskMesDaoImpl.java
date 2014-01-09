@@ -59,7 +59,7 @@ public class TaskMesDaoImpl extends BaseDao implements TaskMesDao{
 			sql_child.append("WHERE ");
 			sql_child.append("u.users_id = tm.users_id AND tm.task_id=? AND tm.root_id=? ");
 			sql_child.append("ORDER BY ");
-			sql_child.append("tm.message_time ASC ");
+			sql_child.append("tm.message_time DESC ");
 			sql_child.append(")t1,users_info u ");
 			sql_child.append("WHERE ");
 			sql_child.append("t1.to_user = u.users_id ");
@@ -85,9 +85,9 @@ public class TaskMesDaoImpl extends BaseDao implements TaskMesDao{
 	}
 
 	@Override
-	public boolean save(TaskMessage tm) {
+	public int save(TaskMessage tm) {
 		
-		boolean flag = false;
+		int flag = 2;
 		
 		List<Object> params = new ArrayList<Object>();
 		
@@ -107,9 +107,14 @@ public class TaskMesDaoImpl extends BaseDao implements TaskMesDao{
 		
 		try {
 			jdbcUtils.getConnection();
-			flag = jdbcUtils.updateByPreparedStatement(sql.toString(), params);
+			boolean isSucceed = jdbcUtils.updateByPreparedStatement(sql.toString(), params);
+			if(isSucceed == true){
+				flag = 0;
+			}else{
+				flag = 1;
+			}
 		} catch (Exception e) {
-			flag = false;
+			flag = 1;
 			e.printStackTrace();
 		} finally {
 			this.jdbcUtils.releaseConn();

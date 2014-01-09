@@ -55,7 +55,7 @@ public class TaskMessageController extends BaseController {
 
 	@RequestMapping(value = "/save", method = RequestMethod.GET)
 	@ResponseBody
-	public String getTaskMesSave(TaskMessage tm, HttpServletRequest request,
+	public void getTaskMesSave(TaskMessage tm, HttpServletRequest request,
 			HttpServletResponse response) {
 
 		User user = (User) SessionUtil.getUser(request);
@@ -77,9 +77,14 @@ public class TaskMessageController extends BaseController {
 		tm.setMessage_id(message_id);
 		tm.setUsers_id(users_id);
 		tm.setMessage_time(message_time);
-		
+		int flag = taskMesService.save(tm);
 
-		return Object2JsonUtil.Object2Json(taskMesService.save(tm));
+		if(flag == 0){
+			util.toJsonMsg(response, 0, "发布成功！");
+		}else{
+			util.toJsonMsg(response, 1, "发布失败！");
+		}
+		
 	}
 
 }

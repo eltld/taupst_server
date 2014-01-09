@@ -5,9 +5,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.taupst.model.User;
-import com.taupst.queryhelper.UserQueryHelper;
 import com.taupst.service.UserService;
-import com.taupst.util.Page;
 
 
 @Service("userService")
@@ -18,16 +16,6 @@ public class UserServiceImpl extends BaseService implements UserService {
 		// TODO Auto-generated method stub
 		return this.userDao.getUserById(userId);
 	}
-
-	@Override
-	public Page getUserByHelper(Page page, UserQueryHelper helper) {
-
-		page.setTotalRecNum((long) this.userDao.getUserCountByHelper(helper));
-		page.setPageContent(this.userDao.getUserByHelper(helper,
-				page.getStartIndex(), page.getEndIndex()));
-		return page;
-	}
-
 
 	@Override
 	public boolean saveUserInfo(Map<String, String> stuInfo) {

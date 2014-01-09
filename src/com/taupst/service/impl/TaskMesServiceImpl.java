@@ -17,7 +17,7 @@ public class TaskMesServiceImpl extends BaseService implements TaskMesService {
 	}
 
 	@Override
-	public boolean save(TaskMessage tm) {
+	public int save(TaskMessage tm) {
 		return taskMesDao.save(tm);
 	}
 

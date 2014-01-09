@@ -19,7 +19,7 @@ public class ReflectUtil {
 		String[] fileName = this.getFiledName(obj);
 		for (String fName : fileName) {
 			Object o = this.getFieldValueByName(fName, obj);
-			if(o != null && !o.equals("")){
+			if(o != null){
 				useFileName.add(fName);
 				useFileValue.add(o);
 			}

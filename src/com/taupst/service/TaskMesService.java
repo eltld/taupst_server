@@ -9,6 +9,6 @@ public interface TaskMesService {
 
 	List<Map<String, Object>> getTMList(String task_id, String tm_id, int type);
 
-	boolean save(TaskMessage tm);
+	int save(TaskMessage tm);
 
 }

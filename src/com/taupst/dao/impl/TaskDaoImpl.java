@@ -17,11 +17,10 @@ import com.taupst.util.MethodUtil;
 @Repository("taskDao")
 public class TaskDaoImpl extends BaseDao implements TaskDao {
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public List<Map<String, Object>> getTaskList(TaskQueryConditions conditions,int type) {
 		List<Map<String, Object>> taskList = new ArrayList<Map<String, Object>>();
-		List params = new ArrayList();
+		List<Object> params = new ArrayList<Object>();
 		StringBuilder sql = new StringBuilder();
 		
 		String task_id = conditions.getTask_id();
@@ -29,7 +28,6 @@ public class TaskDaoImpl extends BaseDao implements TaskDao {
 		if(task_id != null && !task_id.equals("")){
 			task_id = task_id.substring(0, 17);
 		}
-		
 
 		params.add(conditions.getSchool());
 		params.add(conditions.getLevel());
