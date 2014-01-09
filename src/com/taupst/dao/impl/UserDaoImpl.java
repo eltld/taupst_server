@@ -1,5 +1,7 @@
 package com.taupst.dao.impl;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -236,11 +238,21 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	
 	private boolean updataTmp(String sql, List<Object> params) {
 		boolean flag = false;
+		//Connection conn = null;
 		try {
+			//conn = this.jdbcUtils.getConnection();
 			this.jdbcUtils.getConnection();
+			//conn.setAutoCommit(false);
 			flag = this.jdbcUtils.updateByPreparedStatement(sql, params);
+			
+			//conn.commit();
 		} catch (Exception e) {
 			e.printStackTrace();
+			/*try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}*/
 		} finally {
 			this.jdbcUtils.releaseConn();
 		}

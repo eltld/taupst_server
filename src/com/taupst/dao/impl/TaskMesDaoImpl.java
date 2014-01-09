@@ -1,6 +1,7 @@
 package com.taupst.dao.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public class TaskMesDaoImpl extends BaseDao implements TaskMesDao{
 		
 		StringBuilder sql = new StringBuilder();
 		
-		sql.append("SELECT u.photo,u.username,tm.users_id,tm.message_id,tm.task_id,tm.message_content,tm.message_time ");
+		sql.append("SELECT u.photo,u.username,tm.users_id,tm.message_id,tm.message_content,tm.message_time,tm.task_id ");
 		sql.append("FROM users_info u,task_message tm ");
 		sql.append("WHERE u.users_id = tm.users_id AND tm.task_id=? AND tm.root_id = '-1' AND tm.to_user = '-1' ");
 		// type == 1 表示向下拉，获取比当前id时间更新的
@@ -47,8 +48,8 @@ public class TaskMesDaoImpl extends BaseDao implements TaskMesDao{
 			
 			StringBuilder sql_child = new StringBuilder();
 			sql_child.append("SELECT ");
-			sql_child.append("t1.photo,t1.username AS reply,t1.users_id AS reply_id,");
-			sql_child.append("t1.message_id,t1.task_id,t1.message_content,t1.message_time,");
+			sql_child.append("t1.username AS reply,t1.users_id AS reply_id,");
+			sql_child.append("t1.message_content,");
 			sql_child.append("u.username AS replied,u.users_id AS replied_id ");
 			sql_child.append("FROM (");
 			sql_child.append("SELECT ");
@@ -72,8 +73,15 @@ public class TaskMesDaoImpl extends BaseDao implements TaskMesDao{
 				param_child.add(task_id);
 				param_child.add(messageId);
 				
+				Map<String, Object> contentMap = new HashMap<String, Object>();
 				List<Map<String, Object>> childList = this.jdbcUtils.findMoreResult(sql_child.toString(), param_child);
-				rootMap.put("childList", childList);
+				String message_content = (String) rootMap.get("message_content");
+				contentMap.put("message_content", message_content);
+				List<Map<String, Object>> contentList = new ArrayList<Map<String, Object>>();
+				contentList.add(contentMap);
+				contentList.addAll(1, childList);
+				rootMap.remove("message_content");
+				rootMap.put("content", contentList);
 			}
 			
 		} catch (Exception e) {

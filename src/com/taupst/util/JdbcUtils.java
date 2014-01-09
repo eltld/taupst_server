@@ -187,6 +187,7 @@ public class JdbcUtils {
 			}
 		}
 		resultSet = pstmt.executeQuery();
+		System.out.println(pstmt.toString());
 		ResultSetMetaData metaData = resultSet.getMetaData();
 		int cols_len = metaData.getColumnCount();
 		while (resultSet.next()) {
