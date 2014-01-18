@@ -61,9 +61,10 @@ public class SignController extends BaseController{
 			returnMap = signService.save(sign);
 			break;
 		case 1:
-			returnMap.put("state", 1);
+			returnMap = signService.save(sign);
+			/*returnMap.put("state", 1);
 			returnMap.put("success", false);
-			returnMap.put("msg", "亲，你已经报过名了！");
+			returnMap.put("msg", "亲，你已经报过名了！");*/
 			break;
 		case 2:
 			returnMap.put("state", 2);

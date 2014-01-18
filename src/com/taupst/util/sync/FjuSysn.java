@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -26,8 +28,24 @@ public class FjuSysn implements Sysn {
 
 	private String userName;
 	private String password;
-
+	//private String txtSecretCode;
+	//private String cookie;
+	
 	private CloseableHttpClient httpClient;
+	private CloseableHttpResponse httpResponse;
+	
+	public FjuSysn() {
+		super();
+	}
+
+	public FjuSysn(String userName, String password, String txtSecretCode,
+			String cookie) {
+		super();
+		this.userName = userName;
+		this.password = password;
+		//this.txtSecretCode = txtSecretCode;
+		//this.cookie = cookie;
+	}
 
 	public FjuSysn(String userName, String password) {
 		super();
@@ -37,11 +55,9 @@ public class FjuSysn implements Sysn {
 	}
 
 	@Override
-	public Map<String, String> login() throws ClientProtocolException,
+	public Map<String, String> login(HttpServletRequest request) throws ClientProtocolException,
 			IOException {
 		Map<String, String> map = new HashMap<String, String>();
-		// String userName = "021000804";
-		// String password = "159753";
 
 		// HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 		// CloseableHttpClient httpClient =httpClientBuilder.build(); 这种方式也可以。
@@ -54,7 +70,6 @@ public class FjuSysn implements Sysn {
 		loginParams.put("x", "30");
 		loginParams.put("y", "20");
 		HttpPost httpPost = new HttpPost("http://59.77.226.32/logincheck.asp");
-		CloseableHttpResponse httpResponse = null;
 		// httpPost.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS,false);
 		// 加入请求参数
 
@@ -125,7 +140,7 @@ public class FjuSysn implements Sysn {
 			Elements es = doc.select("title");
 			// 判断密码是否错误，es.hasText()==true则密码正确，es.hasText()==false则密码错误
 			if (es.hasText()) {
-				map.put("isLoginSuccess", "true");
+				map.put("isLogined", "true");
 
 				els = doc.select("table");
 				// 获取第三个table
@@ -143,6 +158,13 @@ public class FjuSysn implements Sysn {
 				String student_id = elTmp.html();
 				map.put("student_id", student_id);
 				System.out.println("学号:" + student_id);
+				
+				if(student_id == null || student_id.equals("")){
+					map.put("isLogined", "false");
+					map.put("state", "1");
+					map.put("msg", "请登录教务系统完成教师评价后在登录!!");
+				}
+				
 				// 姓名
 				elTmp = elTmps.get(3);
 				String xm = elTmp.html();
@@ -185,19 +207,24 @@ public class FjuSysn implements Sysn {
 				map.put("lbl_xzb", lbl_xzb);
 				System.out.println("班级:" + lbl_xzb);
 			} else {
-				map.put("isLoginSuccess", "false");
+				map.put("isLogined", "false");
+				map.put("state", "5");
+				map.put("msg", "密码错误！！");
 			}
 		} else {
-			map.put("isLoginSuccess", "false");
+			map.put("isLogined", "false");
+			map.put("state", "4");
+			map.put("msg", "用户名不存在或未按照要求参加教学活动！！");
 		}
-
+		httpResponse.close();
+		httpClient.close();
 		return map;
 	}
 
 	public static void main(String[] args) throws ClientProtocolException,
 			IOException {
 		FjuSysn f = new FjuSysn("021000804", "159753");
-		Map<String, String> m = f.login();
+		Map<String, String> m = f.login(null);
 		System.out.println(m);
 	}
 }

@@ -14,7 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.baidu.inf.iis.bcs.BaiduBCS;
+import com.baidu.inf.iis.bcs.auth.BCSCredentials;
+import com.baidu.inf.iis.bcs.request.DeleteObjectRequest;
 import com.taupst.model.User;
+import com.taupst.util.CodeFactory;
+import com.taupst.util.CodeUtil;
+import com.taupst.util.FinalVariable;
 import com.taupst.util.Object2JsonUtil;
 import com.taupst.util.ReflectUtil;
 import com.taupst.util.SessionUtil;
@@ -23,16 +29,68 @@ import com.taupst.util.sync.SysnFac;
 
 @Controller
 @RequestMapping(value = "/data/user", produces = "application/json;charset=UTF-8")
-public class UserController extends BaseController{
+public class UserController extends BaseController {
 
 	private static Logger log = Logger
 			.getLogger(UserController.class.getName());
 
 	private boolean bool;
 
+	@RequestMapping(value = "/issysn", method = RequestMethod.GET)
+	@ResponseBody
+	public String isSysn(User user, HttpServletRequest request,
+			HttpServletResponse response) {
+		Map<String, String> map = new HashMap<String, String>();
+
+		// 判断该用户在数据库中是否存在
+		int isExist = userService.isUserExist(user.getStudent_id(),
+				user.getSchool());
+		// 0,表示存在 1，表示不存在 ，2，表示数据库异常
+		switch (isExist) {
+		case 0:
+			map.put("state", "0");
+			map.put("msg", "存在");
+			break;
+		case 1:
+			String codeUrl = CodeFactory.getCode(Integer.parseInt(user
+					.getSchool()));
+			String fileName = System.currentTimeMillis() + ".jpg";
+			boolean flag = CodeUtil.downloadImage(codeUrl, fileName, request);
+			if (flag) {
+				map.put("state", "1");
+				map.put("msg", "用户不存在,code下载成功");
+				map.put("mcode", fileName);
+			} else {
+				map.put("state", "3");
+				map.put("msg", "用户不存在，code下载失败");
+			}
+			break;
+		case 2:
+			map.put("state", "2");
+			map.put("msg", "网络异常");
+			break;
+		}
+		return Object2JsonUtil.Object2Json(map);
+	}
+
+	/**
+	 * 
+	 * @param user
+	 * @param txtSecretCode
+	 * @param cookie
+	 * @param request
+	 * @param response
+	 * @return state <br>
+	 *         没有:成功<br>
+	 *         1:请登录教务系统完成教师评价后在登录!!<br>
+	 *         2:网络异常<br>
+	 *         3:验证码不正确！！<br>
+	 *         4:用户名不存在或未按照要求参加教学活动！！<br>
+	 *         5:密码错误！！<br>
+	 */
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	@ResponseBody
-	public String login(User user, HttpServletRequest request,
+	public String login(User user, String code, HttpServletRequest request,
 			HttpServletResponse response) {
 
 		// 1表示用户名或密码错误，2表示数据库异常
@@ -55,17 +113,20 @@ public class UserController extends BaseController{
 			returnMap.remove("user");
 
 		} else if (isExist == 1) {
+
+			String mCookie = (String) SessionUtil.getAttr(request, "mCookie");
+
 			// 该用户在数据库中不存在，到教务系统中获取用户信息保存到数据库中
 			Sysn sysn = SysnFac.getConn(user.getSchool(), user.getStudent_id(),
-					user.getPwd());
+					user.getPwd(), code, mCookie);
 			Map<String, String> stuInfo = null;
 			try {
 
 				log.debug("login from net ...");
 
-				stuInfo = sysn.login();
+				stuInfo = sysn.login(request);
 				// 该用户在教务系统中登录失败，表示用户名或密码错误。
-				if (stuInfo.get("isLoginSuccess").equals("true")) {
+				if (stuInfo.get("isLogined").equals("true")) {
 
 					log.debug("login from net succeed");
 
@@ -97,9 +158,9 @@ public class UserController extends BaseController{
 				} else {
 
 					log.debug("login from net failed");
-
-					returnMap.put("isLogined", "false");
-					returnMap.put("state", "1"); // 1 用户名密码错误
+					returnMap.putAll(stuInfo);
+					// returnMap.put("isLogined", "false");
+					// returnMap.put("state", "1"); // 1 用户名密码错误
 				}
 			} catch (IOException e) {
 
@@ -124,7 +185,7 @@ public class UserController extends BaseController{
 			HttpServletResponse response) {
 
 		String users_id = user.getUsers_id();
-		
+
 		if (users_id != null && !users_id.equals("")) {
 			user = userService.getUserById(users_id);
 		} else {
@@ -152,16 +213,16 @@ public class UserController extends BaseController{
 	@ResponseBody
 	public void updateUserInfo(User user, HttpServletRequest request,
 			HttpServletResponse response) {
-		
+
 		ReflectUtil reflectUtil = new ReflectUtil();
 		Map<String, Object> map = reflectUtil.getFieldAndValue(user);
-		
+
 		User u = (User) SessionUtil.getUser(request);
-		
+
 		user.setUsers_id(u.getUsers_id());
-		
-		//boolean f = userService.update(user,map);
-		
+
+		// boolean f = userService.update(user,map);
+
 		// 判断昵称是否合法
 		if (this.isUserName(user.getUsername()) != true) {
 			util.toJsonMsg(response, 1, "昵称错误，请重新填写！");
@@ -183,10 +244,17 @@ public class UserController extends BaseController{
 			return;
 		}
 
-		
+		// 修改头像前，先删除旧头像
+		String user_photo = user.getPhoto();
+		if (user_photo != null) {
+			String u_photo = u.getPhoto();
+			if (u_photo != null && !u_photo.equals("")) {
+				this.deletePhoto("/photo/" + u_photo);
+			}
+		}
 
 		// 将用户数据插入到数据库中
-		if (userService.update(user,map) == true) {
+		if (userService.update(user, map) == true) {
 			util.toJsonMsg(response, 0, "修改成功！");
 			u = userService.getUserById(u.getUsers_id());
 			SessionUtil.setUser(request, u);
@@ -203,19 +271,28 @@ public class UserController extends BaseController{
 	public void getUserSignature(User user, HttpServletRequest request,
 			HttpServletResponse response) {
 
-		User u = (User) SessionUtil.getUser(request);
+	}
 
-		u.setSignature(user.getSignature());
-
-		// 将用户数据插入到数据库中
-		if (userService.updateSignature(u) == true) {
-			util.toJsonMsg(response, 0, "修改成功！");
-			SessionUtil.setUser(request, u);
-			return;
-		} else {
-			util.toJsonMsg(response, 2, "网络超时！");
-			return;
+	private boolean deletePhoto(String path) {
+		boolean flag = false;
+		try {
+			log.debug("===========" + UserController.class.getName()
+					+ " :delete photo begin ===========");
+			BCSCredentials credentials = new BCSCredentials(
+					FinalVariable.BAE_USERNAME, FinalVariable.BAE_PASSWORD);
+			BaiduBCS baiduBCS = new BaiduBCS(credentials, FinalVariable.BCSHOST);
+			DeleteObjectRequest objectRequest = new DeleteObjectRequest(
+					FinalVariable.BUCKET, path);
+			baiduBCS.deleteObject(objectRequest);
+			log.debug("===========" + UserController.class.getName()
+					+ " :delete photo succeed ===========");
+			flag = true;
+		} catch (Exception e) {
+			log.debug("===========" + UserController.class.getName() + " :"
+					+ e.getMessage() + "===========");
+			flag = false;
 		}
+		return flag;
 	}
 
 	// 验证邮箱是否合法
@@ -286,20 +363,33 @@ public class UserController extends BaseController{
 	}
 
 	public static void main(String[] args) {
-		
-		//ReflectUtil reflectUtil = new ReflectUtil();
-		//User user = new User();
-		//user.setUsername("hd");
-		//user.setSchool("00001");
-		//Map<String, Object> map = reflectUtil.getFieldAndValue(user);
-		
-		//String[] fileName = (String[]) map.get("fileName");
-		//Object[] useFileValue = (Object[]) map.get("fileValue");
-		
-		//UserController userController = new UserController();
-		
-		//System.out.println(userController.util.getUUID());
+
+		// ReflectUtil reflectUtil = new ReflectUtil();
+		// User user = new User();
+		// user.setUsername("hd");
+		// user.setSchool("00001");
+		// Map<String, Object> map = reflectUtil.getFieldAndValue(user);
+
+		// String[] fileName = (String[]) map.get("fileName");
+		// Object[] useFileValue = (Object[]) map.get("fileValue");
+
+		// UserController userController = new UserController();
+
+		// System.out.println(userController.util.getUUID());
+
+		/*
+		 * long l_1 = System.currentTimeMillis();
+		 * 
+		 * for (int i = 0; i < 100000; i++) {
+		 * 
+		 * } long l_2 = System.currentTimeMillis();
+		 * 
+		 * 
+		 * System.out.println(l_1); System.out.println(l_2);
+		 */
+		// String str = userController.util.getDate(4, null, 1389589100419l);
+
+		// System.out.println(str);
 	}
 
-	
 }

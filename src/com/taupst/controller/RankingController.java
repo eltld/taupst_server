@@ -1,6 +1,7 @@
 package com.taupst.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,62 @@ public class RankingController extends BaseController {
 			rankList = rankingService.list(school, type);
 		}
 
-		return Object2JsonUtil.Object2Json(rankList);
+		Map<String, Object> userRank = this.getUsrtRank(user.getUsers_id(),
+				user.getSchool(), type);
+
+		//rankList.add(userRank);
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		map.put("rankList", rankList);
+		map.put("mRank", userRank);
+		
+		return Object2JsonUtil.Object2Json(map);
 	}
 
+	/**
+	 * 
+	 * @param type
+	 *            排行榜类型 <br>
+	 *            1：表示总榜 <br>
+	 *            2：表示月榜
+	 * @param user
+	 *            传入的参数users_id and school
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	
+	@RequestMapping(value = "/rank", method = RequestMethod.GET)
+	@ResponseBody
+	public String userRank(Integer type, User user, HttpServletRequest request,
+			HttpServletResponse response) {
+		// 若是没有传则默认查总榜的排名
+		if (type == null) {
+			type = 1;
+		}
+		User u = (User) SessionUtil.getUser(request);
+		String users_id = user.getUsers_id();
+		String school = u.getSchool();
+		Map<String, Object> userRank = new HashMap<String, Object>();
+
+		if (users_id == null || users_id.equals("")) {
+
+			userRank = this.getUsrtRank(u.getUsers_id(), school, type);
+		} else {
+			userRank = rankingService.getRankByUserId(users_id, school, type);
+		}
+
+		return Object2JsonUtil.Object2Json(userRank);
+	}
+
+	private Map<String, Object> getUsrtRank(String users_id, String school,
+			Integer type) {
+
+		Map<String, Object> userRank = new HashMap<String, Object>();
+
+		userRank = rankingService.getRankByUserId(users_id, school, type);
+
+		return userRank;
+	}
 }

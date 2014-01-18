@@ -26,7 +26,7 @@ public class TaskMesDaoImpl extends BaseDao implements TaskMesDao{
 		
 		StringBuilder sql = new StringBuilder();
 		
-		sql.append("SELECT u.photo,u.username,tm.users_id,tm.message_id,tm.message_content,tm.message_time,tm.task_id ");
+		sql.append("SELECT tm.task_id,tm.message_id,tm.users_id,u.username,u.sex,u.photo,tm.message_content,tm.message_time ");
 		sql.append("FROM users_info u,task_message tm ");
 		sql.append("WHERE u.users_id = tm.users_id AND tm.task_id=? AND tm.root_id = '-1' AND tm.to_user = '-1' ");
 		// type == 1 表示向下拉，获取比当前id时间更新的

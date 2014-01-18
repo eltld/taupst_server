@@ -204,6 +204,35 @@ public class MethodUtil {
 		}
 		return this.getRandom(min, max);
 	}
+	
+	 /**
+     * 
+     * <br>
+     * <b>功能：</b>获取日期方法<br>
+     * @param type 0=yyyy-MM-dd HH:mm:ss,1=yyyyMMddHHmmss,2=yyyyMMdd
+     * @param formatStr null 自定义
+     * @return
+     */
+	public String getDate(int type,String formatStr,long time){
+		Date date = new Date(time);
+		SimpleDateFormat sdf = null;
+		if(null!=formatStr){
+		    sdf=new SimpleDateFormat(formatStr);
+		}else if(type==0){
+			sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		}else if(type==1){
+			sdf=new SimpleDateFormat("yyyyMMddHHmmss");
+		}else if(type==2){
+			sdf=new SimpleDateFormat("yyyyMMdd");
+		}else if(type==4){
+			sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		}
+		
+		
+		String str=sdf.format(date);
+		return str;
+	}
+	
     /**
      * 
      * <br>

@@ -16,4 +16,9 @@ public class RankingServiceImpl extends BaseService implements RankingService {
 		return this.rankingDao.list(school,type);
 	}
 
+	@Override
+	public Map<String, Object> getRankByUserId(String users_id,String school,int type) {
+		return this.rankingDao.getRankByUserId(users_id,school,type);
+	}
+
 }

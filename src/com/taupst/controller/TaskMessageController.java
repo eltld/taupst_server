@@ -1,5 +1,8 @@
 package com.taupst.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -55,7 +58,7 @@ public class TaskMessageController extends BaseController {
 
 	@RequestMapping(value = "/save", method = RequestMethod.GET)
 	@ResponseBody
-	public void getTaskMesSave(TaskMessage tm, HttpServletRequest request,
+	public String getTaskMesSave(TaskMessage tm, HttpServletRequest request,
 			HttpServletResponse response) {
 
 		User user = (User) SessionUtil.getUser(request);
@@ -79,12 +82,20 @@ public class TaskMessageController extends BaseController {
 		tm.setMessage_time(message_time);
 		int flag = taskMesService.save(tm);
 
-		if(flag == 0){
-			util.toJsonMsg(response, 0, "发布成功！");
-		}else{
-			util.toJsonMsg(response, 1, "发布失败！");
-		}
+		Map<String, Object> map = new HashMap<String, Object>();
 		
+		if(flag == 0){
+			map.put("state", 0);
+			map.put("success", true);
+			map.put("msg", "发布成功！");
+			map.put("message_id", message_id);
+		}else{
+			map.put("state", 1);
+			map.put("success", false);
+			map.put("msg", "发布失败！");
+			//map.put("message_id", message_id);
+		}
+		return Object2JsonUtil.Object2Json(map);
 	}
 
 }

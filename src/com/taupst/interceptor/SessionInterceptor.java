@@ -43,7 +43,6 @@ public class SessionInterceptor implements HandlerInterceptor {
 	/**
 	 * 在调用controller具体方法前拦截
 	 */
-	@SuppressWarnings("unchecked")
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception {
 		String requestUri = request.getRequestURI();
 		String contextPath = request.getContextPath();

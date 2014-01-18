@@ -71,6 +71,33 @@ public class JdbcUtils {
 		return connection;
 	}
 
+	public boolean updateByBatch(String[] sql) {
+		boolean flag = false;
+		try {
+			connection.setAutoCommit(false);
+			stmt = connection.createStatement();
+			if (sql != null) {
+				for (int i = 0; i < sql.length; i++) {
+					stmt.addBatch(sql[i]);
+				}
+			}
+			int[] count = stmt.executeBatch();
+			connection.commit();
+			if (count != null) {
+				flag = true;
+			}
+		} catch (SQLException e) {
+			flag = false;
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		}
+		
+		return flag;
+	}
 	public boolean deleteByBatch(String[] sql) throws SQLException {
 		boolean flag = false;
 		stmt = connection.createStatement();
