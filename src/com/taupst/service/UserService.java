@@ -6,7 +6,7 @@ import com.taupst.model.User;
 
 public interface UserService {
 
-	User getUserById(String user_id);
+	Map<String, Object> getUserById(String user_id);
 
 	User getUser(String student_id, String pwd, String school);
 

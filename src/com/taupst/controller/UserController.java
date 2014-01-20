@@ -88,6 +88,7 @@ public class UserController extends BaseController {
 	 *         4:用户名不存在或未按照要求参加教学活动！！<br>
 	 *         5:密码错误！！<br>
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	@ResponseBody
 	public String login(User user, String code, HttpServletRequest request,
@@ -108,17 +109,15 @@ public class UserController extends BaseController {
 			returnMap = userService.login(user.getStudent_id(), user.getPwd(),
 					user.getSchool());
 
-			User u = (User) returnMap.get("user");
+			Map<String, Object> u = (Map<String, Object>) returnMap.get("user");
 			SessionUtil.setUser(request, u);
 			returnMap.remove("user");
 
 		} else if (isExist == 1) {
 
-			String mCookie = (String) SessionUtil.getAttr(request, "mCookie");
-
 			// 该用户在数据库中不存在，到教务系统中获取用户信息保存到数据库中
 			Sysn sysn = SysnFac.getConn(user.getSchool(), user.getStudent_id(),
-					user.getPwd(), code, mCookie);
+					user.getPwd(), code);
 			Map<String, String> stuInfo = null;
 			try {
 
@@ -144,7 +143,8 @@ public class UserController extends BaseController {
 						returnMap = userService.login(user.getStudent_id(),
 								user.getPwd(), user.getSchool());
 
-						User u = (User) returnMap.get("user");
+						Map<String, Object> u = (Map<String, Object>) returnMap
+								.get("user");
 						SessionUtil.setUser(request, u);
 						returnMap.remove("user");
 
@@ -179,20 +179,21 @@ public class UserController extends BaseController {
 		return Object2JsonUtil.Object2Json(returnMap);
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/userInfo", method = RequestMethod.GET)
 	@ResponseBody
 	public String getUserInfo(User user, HttpServletRequest request,
 			HttpServletResponse response) {
 
 		String users_id = user.getUsers_id();
-
+		Map<String, Object> u = new HashMap<String, Object>();
 		if (users_id != null && !users_id.equals("")) {
-			user = userService.getUserById(users_id);
+			u = userService.getUserById(users_id);
 		} else {
-			user = (User) SessionUtil.getUser(request);
+			u = (Map<String, Object>) SessionUtil.getUser(request);
 		}
 
-		return Object2JsonUtil.Object2Json(user);
+		return Object2JsonUtil.Object2Json(u);
 	}
 
 	@RequestMapping(value = "/exit", method = RequestMethod.GET)
@@ -209,6 +210,7 @@ public class UserController extends BaseController {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/update", method = RequestMethod.GET)
 	@ResponseBody
 	public void updateUserInfo(User user, HttpServletRequest request,
@@ -217,9 +219,10 @@ public class UserController extends BaseController {
 		ReflectUtil reflectUtil = new ReflectUtil();
 		Map<String, Object> map = reflectUtil.getFieldAndValue(user);
 
-		User u = (User) SessionUtil.getUser(request);
+		Map<String, Object> u = (Map<String, Object>) SessionUtil
+				.getUser(request);
 
-		user.setUsers_id(u.getUsers_id());
+		user.setUsers_id((String) u.get("users_id"));
 
 		// boolean f = userService.update(user,map);
 
@@ -247,7 +250,7 @@ public class UserController extends BaseController {
 		// 修改头像前，先删除旧头像
 		String user_photo = user.getPhoto();
 		if (user_photo != null) {
-			String u_photo = u.getPhoto();
+			String u_photo = (String) u.get("photo");
 			if (u_photo != null && !u_photo.equals("")) {
 				this.deletePhoto("/photo/" + u_photo);
 			}
@@ -256,7 +259,8 @@ public class UserController extends BaseController {
 		// 将用户数据插入到数据库中
 		if (userService.update(user, map) == true) {
 			util.toJsonMsg(response, 0, "修改成功！");
-			u = userService.getUserById(u.getUsers_id());
+
+			u = userService.getUserById((String) u.get("users_id"));
 			SessionUtil.setUser(request, u);
 			return;
 		} else {

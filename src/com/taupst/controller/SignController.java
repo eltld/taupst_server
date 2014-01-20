@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.taupst.model.Sign;
-import com.taupst.model.User;
 import com.taupst.util.Object2JsonUtil;
 import com.taupst.util.SessionUtil;
 
@@ -33,16 +32,17 @@ public class SignController extends BaseController{
 	 * 		4.表示任务已经过期了<br>
 	 * 		5.表示任务已经完成了<br>
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/save", method = RequestMethod.GET)
 	@ResponseBody
 	public String signTask(Sign sign, HttpServletRequest request,
 			HttpServletResponse response) {
 
-		User user = (User) SessionUtil.getUser(request);
+		Map<String, Object> user = (Map<String, Object>) SessionUtil.getUser(request);
 
 		sign.setSign_id(util.getUUID());
 		sign.setSign_time(util.getDate(0, null));
-		sign.setUsers_id(user.getUsers_id());
+		sign.setUsers_id((String)user.get("users_id"));
 		sign.setIsexe(1);
 
 		Map<String, Object> returnMap = new HashMap<String, Object>();
@@ -106,14 +106,15 @@ public class SignController extends BaseController{
 	 * 		4.表示任务已经过期了<br>
 	 * 		5.表示任务已经完成了<br>
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/issign", method = RequestMethod.GET)
 	@ResponseBody
 	public String isSign(Sign sign, HttpServletRequest request,
 			HttpServletResponse response) {
 
-		User user = (User) SessionUtil.getUser(request);
+		Map<String, Object> user = (Map<String, Object>) SessionUtil.getUser(request);
 
-		sign.setUsers_id(user.getUsers_id());
+		sign.setUsers_id((String)user.get("users_id"));
 
 		Map<String, Object> returnMap = new HashMap<String, Object>();
 

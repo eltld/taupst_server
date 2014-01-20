@@ -29,7 +29,6 @@ public class FjutSysn implements Sysn {
 	private String userName;
 	private String password;
 	private String txtSecretCode;
-	private String cookie;
 	
 	private CloseableHttpClient httpClient;
 	private CloseableHttpResponse httpResponse;
@@ -38,13 +37,11 @@ public class FjutSysn implements Sysn {
 		super();
 	}
 
-	public FjutSysn(String userName, String password, String txtSecretCode,
-			String cookie) {
+	public FjutSysn(String userName, String password, String txtSecretCode) {
 		super();
 		this.userName = userName;
 		this.password = password;
 		this.txtSecretCode = txtSecretCode;
-		this.cookie = cookie;
 	}
 
 	public FjutSysn(String userName, String password) {
@@ -83,7 +80,6 @@ public class FjutSysn implements Sysn {
 		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paramList,
 				"gb2312");
 		httpPost.setEntity(entity);
-		httpPost.setHeader("Cookie", cookie);
 		httpResponse = httpClient.execute(httpPost);
 
 		HttpEntity content = httpResponse.getEntity();
@@ -198,8 +194,7 @@ public class FjutSysn implements Sysn {
 
 	public static void main(String[] args) throws ClientProtocolException,
 			IOException {
-		FjutSysn f = new FjutSysn("3100302414", "666666", "pqfx",
-				"ASP.NET_SessionId=nu2g0pqhbuauuaazfttbe245");
+		FjutSysn f = new FjutSysn("3100302414", "666666", "pqfx");
 		Map<String, String> m = f.login(null);
 		System.out.println(m);
 

@@ -7,7 +7,7 @@ import com.taupst.queryhelper.UserQueryHelper;
 
 public interface UserDao {
 
-	User getUserById(String user_id);
+	Map<String, Object> getUserById(String user_id);
 
 	User getUser(String student_id, String pwd, String school);
 

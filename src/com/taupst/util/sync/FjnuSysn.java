@@ -16,7 +16,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
@@ -26,6 +25,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.taupst.util.JdbcUtils;
+import com.taupst.util.SessionUtil;
 
 @SuppressWarnings("deprecation")
 public class FjnuSysn implements Sysn {
@@ -35,7 +35,6 @@ public class FjnuSysn implements Sysn {
 	private String userName;
 	private String password;
 	private String txtSecretCode;
-    private String cookie;
 
 	private CloseableHttpClient httpClient;
 	private CloseableHttpResponse httpResponse;
@@ -44,13 +43,11 @@ public class FjnuSysn implements Sysn {
 		super();
 	}
 
-	public FjnuSysn(String userName, String password, String txtSecretCode,
-			String cookie) {
+	public FjnuSysn(String userName, String password, String txtSecretCode) {
 		super();
 		this.userName = userName;
 		this.password = password;
 		this.txtSecretCode = txtSecretCode;
-		this.cookie = cookie;
 	}
 
 	public FjnuSysn(String userName, String password) {
@@ -64,11 +61,12 @@ public class FjnuSysn implements Sysn {
 	public Map<String, String> login(HttpServletRequest request) throws ClientProtocolException,
 			IOException {
 		log.debug(JdbcUtils.class.getName() + " start ...");
-		this.httpClient = HttpClients.createDefault();
+		this.httpClient = (CloseableHttpClient) SessionUtil.getAttr(request,
+				"mHttpClient");
 
 		HttpPost httpPost1 = new HttpPost(
 				"http://jwgl.fjnu.edu.cn/default2.aspx");
-		httpPost1.setHeader("Cookie", cookie);
+		//httpPost1.setHeader("Cookie", cookie);
 		httpResponse = httpClient.execute(httpPost1);
 		HttpEntity content2 = httpResponse.getEntity();
 		String html1 = EntityUtils.toString(content2);
@@ -102,7 +100,7 @@ public class FjnuSysn implements Sysn {
 		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paramList,
 				"gb2312");
 		httpPost.setEntity(entity);
-		httpPost.setHeader("Cookie", cookie);
+		//httpPost.setHeader("Cookie", cookie);
 		httpPost.setHeader("Referer", "http://jwgl.fjnu.edu.cn/default2.aspx");
 		httpPost.setHeader("Host", "jwgl.fjnu.edu.cn");
 		httpResponse = httpClient.execute(httpPost);
@@ -241,8 +239,7 @@ public class FjnuSysn implements Sysn {
 
 	public static void main(String[] args) throws ClientProtocolException,
 			IOException {
-		FjnuSysn f = new FjnuSysn("106052009270", "890729", "32427",
-				"ASP.NET_SessionId=05sjzr55zibfmza4lxct3snd");
+		FjnuSysn f = new FjnuSysn("106052009270", "890729", "32427");
 		Map<String, String> m = f.login(null);
 		System.out.println(m);
 

@@ -30,18 +30,15 @@ public class MjuSysn implements Sysn {
 	private String userName;
 	private String password;
 	private String txtSecretCode;
-	private String cookie;
 
 	private CloseableHttpClient httpClient;
 	private CloseableHttpResponse httpResponse;
 
-	public MjuSysn(String userName, String password, String txtSecretCode,
-			String cookie) {
+	public MjuSysn(String userName, String password, String txtSecretCode) {
 		super();
 		this.userName = userName;
 		this.password = password;
 		this.txtSecretCode = txtSecretCode;
-		this.cookie = cookie;
 	}
 
 	@Override
@@ -55,7 +52,7 @@ public class MjuSysn implements Sysn {
 
 		// 动态获取__VIEWSTATE的值
 		HttpGet httpGet = new HttpGet("http://jwgl.mju.edu.cn/default2.aspx");
-		//httpGet.setHeader("Cookie", this.cookie);
+		// httpGet.setHeader("Cookie", this.cookie);
 		httpGet.setHeader("Host", "jwgl.mju.edu.cn");
 
 		httpResponse = httpClient.execute(httpGet);
@@ -94,7 +91,7 @@ public class MjuSysn implements Sysn {
 		httpPost.setHeader("Referer", "http://jwgl.mju.edu.cn/");
 		httpPost.setHeader("Host", "jwgl.mju.edu.cn");
 
-		//httpPost.setHeader("Cookie", this.cookie);
+		// httpPost.setHeader("Cookie", this.cookie);
 		// httpPost.addHeader(new
 		// BasicHeader("Cookie","ASP.NET_SessionId=vi0rdrv5yn5nps45u0crds45"));
 		httpResponse = httpClient.execute(httpPost);
@@ -117,7 +114,7 @@ public class MjuSysn implements Sysn {
 				httpGet_getName.setHeader("Host", "jwgl.mju.edu.cn");
 				httpGet_getName.setHeader("Referer",
 						"http://jwgl.mju.edu.cn/default2.aspx");
-				//httpGet_getName.setHeader("Cookie", this.cookie);
+				// httpGet_getName.setHeader("Cookie", this.cookie);
 				httpResponse = httpClient.execute(httpGet_getName);
 				HttpEntity content_getName = httpResponse.getEntity();
 				html = EntityUtils.toString(content_getName);
@@ -135,64 +132,74 @@ public class MjuSysn implements Sysn {
 				httpGet_getName.setHeader("Referer",
 						"http://jwgl.mju.edu.cn/xs_main.aspx?xh="
 								+ this.userName + "");
-				//httpGet_getName.setHeader("Cookie", this.cookie);
+				// httpGet_getName.setHeader("Cookie", this.cookie);
 				httpResponse = httpClient.execute(httpGet_getName);
 				HttpEntity content_userinfo = httpResponse.getEntity();
 				html = EntityUtils.toString(content_userinfo);
 				// System.out.println(html);
 
-				map.put("isLogined", "true");
-				map.put("state", "0");
-				map.put("msg", "登录成功");
-
 				doc = Jsoup.parse(html);
-				// 获取用户信息
-				map.put("student_id", this.userName);
-				System.out.println("学号：" + this.userName);
 
-				map.put("xm", xhxm);
-				System.out.println("姓名：" + xhxm);
-
-				Elements lbl_xb = doc.select("#XB > option[selected]");
+				Elements es_tmp = doc.select("script");
+				String err_msg = es_tmp.html();
+				if(err_msg != null && !err_msg.equals("")){
+					String[] err_str = err_msg.split(";");
+					if(err_str.length != 0){
+						err_msg = err_str[0];
+						int begin_index = err_msg.indexOf("\'") ;
+						int end_index = err_msg.lastIndexOf("\'");
+						if(begin_index != -1 && end_index != -1){
+							err_msg = err_msg.substring(begin_index+1, end_index-1);
+						}
+					}
+				}
 				
-				if (lbl_xb == null || lbl_xb.equals("")) {
+				if (err_msg
+						.equals("你还没有进行本学期的教学质量评价,在本系统的“教学质量评价”栏中完成评价工作后，才能进入系统")) {
 					map.put("isLogined", "false");
 					map.put("state", "1");
 					map.put("msg", "请登录教务系统完成教师评价后在登录!!");
 					map.remove("student_id");
 					map.remove("xm");
-					map.remove("lbl_xb");
-					
-					return map;
+				} else {
+
+					map.put("isLogined", "true");
+					map.put("state", "0");
+					map.put("msg", "登录成功");
+
+					// 获取用户信息
+					map.put("student_id", this.userName);
+					System.out.println("学号：" + this.userName);
+
+					map.put("xm", xhxm);
+					System.out.println("姓名：" + xhxm);
+
+					Elements lbl_xb = doc.select("#XB > option[selected]");
+
+					String sex = lbl_xb.attr("value");
+					map.put("lbl_xb", sex);
+					System.out.println("性别：" + sex);
+
+					Element el_lbl_xy = doc.getElementById("lbl_xy");
+					String lbl_xy = el_lbl_xy.html();
+					map.put("lbl_xy", lbl_xy);
+					System.out.println("学院：" + lbl_xy);
+
+					Element el_lbl_zymc = doc.getElementById("lbl_zymc");
+					String lbl_zymc = el_lbl_zymc.html();
+					map.put("lbl_zymc", lbl_zymc);
+					System.out.println("专业：" + lbl_zymc);
+
+					Element el_lbl_xzb = doc.getElementById("lbl_xzb");
+					String lbl_xzb = el_lbl_xzb.html();
+					map.put("lbl_xzb", lbl_xzb);
+					System.out.println("班级：" + lbl_xzb);
+
+					Element el_lbl_dqszj = doc.getElementById("lbl_dqszj");
+					String lbl_dqszj = el_lbl_dqszj.html();
+					map.put("lbl_dqszj", lbl_dqszj);
+					System.out.println("年级：" + lbl_dqszj);
 				}
-				
-				String sex = lbl_xb.attr("value");
-				map.put("lbl_xb", sex);
-				System.out.println("性别：" + sex);
-
-				
-				
-				Element el_lbl_xy = doc.getElementById("lbl_xy");
-				String lbl_xy = el_lbl_xy.html();
-				map.put("lbl_xy", lbl_xy);
-				System.out.println("学院：" + lbl_xy);
-
-				Element el_lbl_zymc = doc.getElementById("lbl_zymc");
-				String lbl_zymc = el_lbl_zymc.html();
-				map.put("lbl_zymc", lbl_zymc);
-				System.out.println("专业：" + lbl_zymc);
-
-				
-
-				Element el_lbl_xzb = doc.getElementById("lbl_xzb");
-				String lbl_xzb = el_lbl_xzb.html();
-				map.put("lbl_xzb", lbl_xzb);
-				System.out.println("班级：" + lbl_xzb);
-
-				Element el_lbl_dqszj = doc.getElementById("lbl_dqszj");
-				String lbl_dqszj = el_lbl_dqszj.html();
-				map.put("lbl_dqszj", lbl_dqszj);
-				System.out.println("年级：" + lbl_dqszj);
 
 			} else {
 				Elements els = doc.select("script");
@@ -233,8 +240,7 @@ public class MjuSysn implements Sysn {
 
 	public static void main(String[] args) throws ClientProtocolException,
 			IOException {
-		MjuSysn f = new MjuSysn("120091101201", "hou52346945", "603u",
-				"ASP.NET_SessionId=niqe0b45wyavlc55t0hbu3rk");
+		//MjuSysn f = new MjuSysn("120091101201", "hou52346945", "603u");
 		// MjuSysn f = new MjuSysn("120091101201", "hou52346945", "vxuv",
 		// "ASP.NET_SessionId=zu2a2u550kqkuo45e353dby3");
 		// MjuSysn f = new MjuSysn("120101104109", "350128199011024351", "pqfx",

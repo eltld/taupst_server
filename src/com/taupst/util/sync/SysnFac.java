@@ -15,15 +15,15 @@ public class SysnFac {
 	 * @return
 	 */
 	public static Sysn getConn(String school, String userName, String password,
-			String txtSecretCode, String cookie) {
+			String txtSecretCode) {
 		if (school.equals("00007")) {
-			return new FjutSysn(userName, password,txtSecretCode,cookie);
+			return new FjutSysn(userName, password,txtSecretCode);
 		} else if (school.equals("00004")) {
-			return new FjnuSysn(userName, password,txtSecretCode,cookie);
+			return new FjnuSysn(userName, password,txtSecretCode);
 		} else if (school.equals("00003")) {
-			return new FjuSysn(userName, password,txtSecretCode,cookie);
+			return new FjuSysn(userName, password,txtSecretCode);
 		}else if (school.equals("00009")) {
-			return new MjuSysn(userName, password,txtSecretCode,cookie);
+			return new MjuSysn(userName, password,txtSecretCode);
 		} else {
 			return null;
 		}

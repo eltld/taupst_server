@@ -12,7 +12,7 @@ import com.taupst.service.UserService;
 public class UserServiceImpl extends BaseService implements UserService {
 
 	@Override
-	public User getUserById(String userId) {
+	public Map<String, Object> getUserById(String userId) {
 		// TODO Auto-generated method stub
 		return this.userDao.getUserById(userId);
 	}

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.taupst.model.Task;
-import com.taupst.model.User;
 import com.taupst.queryhelper.TaskQueryConditions;
 import com.taupst.util.Object2JsonUtil;
 import com.taupst.util.SessionUtil;
@@ -21,14 +20,15 @@ import com.taupst.util.SessionUtil;
 @RequestMapping(value = "/data/task", produces = "application/json;charset=UTF-8")
 public class TaskController extends BaseController{
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/taskList2Up", method = RequestMethod.GET)
 	@ResponseBody
 	public String getTaskList2Up(TaskQueryConditions conditions,
 			HttpServletRequest request, HttpServletResponse response) {
+		
+		Map<String, Object> user = (Map<String, Object>) SessionUtil.getUser(request);
 
-		User user = (User) SessionUtil.getUser(request);
-
-		conditions.setSchool(user.getSchool());
+		conditions.setSchool((String)user.get("school"));
 
 		int type = 2;// 表示向上拉，获取比当前id时间更旧的
 
@@ -37,14 +37,15 @@ public class TaskController extends BaseController{
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/taskList2Down", method = RequestMethod.GET)
 	@ResponseBody
 	public String getTaskList2Down(TaskQueryConditions conditions,
 			HttpServletRequest request, HttpServletResponse response) {
+		
+		Map<String, Object> user = (Map<String, Object>) SessionUtil.getUser(request);
 
-		User user = (User) SessionUtil.getUser(request);
-
-		conditions.setSchool(user.getSchool());
+		conditions.setSchool((String)user.get("school"));
 
 		String task_id = conditions.getTask_id();
 		int type = 0;// 取出最新的20条
@@ -67,6 +68,7 @@ public class TaskController extends BaseController{
 	 * 		1.表示任务发布失败，存在错误数据
 	 * 		2.表示网络超时
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/save", method = RequestMethod.GET)
 	@ResponseBody
 	public String saveTask(Task task, HttpServletRequest request,
@@ -74,9 +76,9 @@ public class TaskController extends BaseController{
 		
 		Map<String, Object> returnMap = new HashMap<String, Object>();
 		
-		User user = (User) SessionUtil.getUser(request);
+		Map<String, Object> user = (Map<String, Object>) SessionUtil.getUser(request);
 
-		task.setUser_id(user.getUsers_id());
+		task.setUser_id((String)user.get("users_id"));
 		task.setTask_id(util.getUUID());
 		task.setTask_state(1);
 		task.setRelease_time(util.getDate(0, null));
