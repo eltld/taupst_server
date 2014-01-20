@@ -9,7 +9,6 @@ import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -33,18 +32,15 @@ public class CodeUtil {
 		OutputStream os = null;
 		BufferedOutputStream bos = null;
 		try {
-			file = new File(request.getRealPath("/image/code") + "/" + fileName);
-			//file = new File("http://taupst.duapp.com/image/code/" + fileName);
-			if (!file.exists()) {
-				file.createNewFile();
+			file = new File(request.getSession().getServletContext().getRealPath("/image/code") + "/" + fileName);
+			if (file.exists()) {
+				file.delete();
 			}
+			file.createNewFile();
+			
 			HttpGet get = new HttpGet(codeUrl);
 			httpClient = HttpClients.createDefault();
 			response = httpClient.execute(get);
-			
-//			Header[] cookies = response.getHeaders("Set-Cookie");
-//			String cookie = cookies[0].getValue();
-//			cookie = cookie.substring(0, cookie.indexOf(";"));
 			
 			request.getSession().setAttribute("mHttpClient", httpClient);
 			
@@ -87,21 +83,21 @@ public class CodeUtil {
 	/*
 	 * 将图片写到文件里面去 以后可能改成保存到sdcard中去，毕竟手机本身存储器容量有限
 	 */
-	private void writeImageToFile(String fileName, InputStream is) {
+	/*private void writeImageToFile(String fileName, InputStream is) {
 		BufferedInputStream bis = new BufferedInputStream(is);
 		BufferedOutputStream bos = null;
 		try {
-			/*
+			
 			 * OutputStream os = context.openFileOutput(fileName,
 			 * Context.MODE_PRIVATE); bos = new BufferedOutputStream(os); byte[]
 			 * buffer = new byte[1024]; int length; while ((length =
 			 * bis.read(buffer)) != -1) { bos.write(buffer, 0, length); }
-			 */
+			 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		/* 最后的清理工作 */
+		 最后的清理工作 
 		finally {
 			try {
 				if (bis != null) {
@@ -116,7 +112,7 @@ public class CodeUtil {
 			}
 		}
 
-	}
+	}*/
 
 	public static CodeUtil getInstance() {
 		return new CodeUtil();

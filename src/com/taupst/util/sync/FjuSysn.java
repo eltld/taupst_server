@@ -38,8 +38,7 @@ public class FjuSysn implements Sysn {
 		super();
 	}
 
-	public FjuSysn(String userName, String password, String txtSecretCode,
-			String cookie) {
+	public FjuSysn(String userName, String password, String txtSecretCode) {
 		super();
 		this.userName = userName;
 		this.password = password;

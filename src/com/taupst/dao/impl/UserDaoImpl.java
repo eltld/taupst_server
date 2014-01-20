@@ -1,5 +1,6 @@
 package com.taupst.dao.impl;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,13 +18,21 @@ import com.taupst.util.FinalVariable;
 public class UserDaoImpl extends BaseDao implements UserDao {
 
 	@Override
-	public User getUserById(String userId) {
-
+	public Map<String, Object> getUserById(String userId) {
+		Map<String, Object> user = new HashMap<String, Object>();
 		List<Object> params = new ArrayList<Object>();
 		params.add(userId);
-		String sql = "select * from users_info where users_id=?";
+		String sql = "select u.*,r.total_praise,r.month_praise from users_info u,rankinglist r where u.users_id=r.users_id and u.users_id=?";
 
-		return this.userTmp(sql, params);
+		try {
+			jdbcUtils.getConnection();
+			user = jdbcUtils.findSimpleResult(sql, params);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return user;
 
 	}
 
@@ -85,7 +94,7 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	@Override
 	public Map<String, Object> login(String student_id, String pwd,
 			String school) {
-		User user = null;
+		Map<String, Object> user = null;
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		List<Object> params = new ArrayList<Object>();
 		params.add(student_id);
@@ -93,17 +102,17 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 		params.add(school);
 		try {
 			this.jdbcUtils.getConnection();
-			String sql = "select * from users_info where student_id=? and school=?";
-			user = this.jdbcUtils.findSimpleRefResult(sql, params, User.class);
+			String sql = "select u.*,r.total_praise,r.month_praise from users_info u,rankinglist r where r.users_id=u.users_id and u.student_id=? and u.school=?";
+			user = this.jdbcUtils.findSimpleResult(sql, params);
 			if (user == null) {
 				resultMap.put("isLogined", "false");
 				resultMap.put("state", "4");
 				resultMap.put("msg", "用户名不存在或未按照要求参加教学活动！！");
 			} else {
-				String password = user.getPwd();
+				String password = (String) user.get("pwd");
 				if (password.equals(pwd)) {
 					resultMap.put("isLogined", "true");
-					resultMap.put("users_id", user.getUsers_id().toString());
+					resultMap.put("users_id", user.get("users_id"));
 					resultMap.put("user", user);
 				} else {
 					resultMap.put("isLogined", "false");

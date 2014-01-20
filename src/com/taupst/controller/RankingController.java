@@ -31,29 +31,32 @@ public class RankingController extends BaseController {
 	 * @param response
 	 * @return 排行榜列表集合
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public String rankingList(Integer type, HttpServletRequest request,
 			HttpServletResponse response) {
 		List<Map<String, Object>> rankList = new ArrayList<Map<String, Object>>();
 
-		User user = (User) SessionUtil.getUser(request);
-		String school = user.getSchool();
+		Map<String, Object> user = (Map<String, Object>) SessionUtil
+				.getUser(request);
+		String school = (String) user.get("school");
 
 		if (type == 1 || type == 2) {
 			rankList = rankingService.list(school, type);
 		}
 
-		Map<String, Object> userRank = this.getUsrtRank(user.getUsers_id(),
-				user.getSchool(), type);
+		Map<String, Object> userRank = this.getUsrtRank(
+				(String) user.get("users_id"), (String) user.get("school"),
+				type);
 
-		//rankList.add(userRank);
+		// rankList.add(userRank);
 
 		Map<String, Object> map = new HashMap<String, Object>();
-		
+
 		map.put("rankList", rankList);
 		map.put("mRank", userRank);
-		
+
 		return Object2JsonUtil.Object2Json(map);
 	}
 
@@ -69,7 +72,8 @@ public class RankingController extends BaseController {
 	 * @param response
 	 * @return
 	 */
-	
+
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/rank", method = RequestMethod.GET)
 	@ResponseBody
 	public String userRank(Integer type, User user, HttpServletRequest request,
@@ -78,14 +82,16 @@ public class RankingController extends BaseController {
 		if (type == null) {
 			type = 1;
 		}
-		User u = (User) SessionUtil.getUser(request);
+		Map<String, Object> u = (Map<String, Object>) SessionUtil
+				.getUser(request);
 		String users_id = user.getUsers_id();
-		String school = u.getSchool();
+		String school = (String) u.get("school");
 		Map<String, Object> userRank = new HashMap<String, Object>();
 
 		if (users_id == null || users_id.equals("")) {
 
-			userRank = this.getUsrtRank(u.getUsers_id(), school, type);
+			userRank = this.getUsrtRank((String) u.get("users_id"), school,
+					type);
 		} else {
 			userRank = rankingService.getRankByUserId(users_id, school, type);
 		}

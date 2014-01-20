@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.taupst.model.TaskMessage;
-import com.taupst.model.User;
 import com.taupst.util.Object2JsonUtil;
 import com.taupst.util.SessionUtil;
 
@@ -23,7 +22,7 @@ public class TaskMessageController extends BaseController {
 	@RequestMapping(value = "/taskMsgList2Down", method = RequestMethod.GET)
 	@ResponseBody
 	public String getTaskMesList2Down(TaskMessage tm,
-			HttpServletRequest request, HttpServletResponse response) {
+			HttpServletResponse response) {
 
 		String tm_id = tm.getMessage_id();
 		String task_id = tm.getTask_id();
@@ -40,8 +39,7 @@ public class TaskMessageController extends BaseController {
 
 	@RequestMapping(value = "/taskMsgList2Up", method = RequestMethod.GET)
 	@ResponseBody
-	public String getTaskMesList2Up(TaskMessage tm, HttpServletRequest request,
-			HttpServletResponse response) {
+	public String getTaskMesList2Up(TaskMessage tm, HttpServletResponse response) {
 
 		String tm_id = tm.getMessage_id();
 		String task_id = tm.getTask_id();
@@ -56,15 +54,16 @@ public class TaskMessageController extends BaseController {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/save", method = RequestMethod.GET)
 	@ResponseBody
 	public String getTaskMesSave(TaskMessage tm, HttpServletRequest request,
 			HttpServletResponse response) {
 
-		User user = (User) SessionUtil.getUser(request);
+		Map<String, Object> user = (Map<String, Object>) SessionUtil.getUser(request);
 
 		String message_id = util.getUUID();
-		String users_id = user.getUsers_id();
+		String users_id = (String) user.get("users_id");
 		String to_user = tm.getTo_user();
 		String root_id = tm.getRoot_id();
 		String message_time = util.getDate(0, null);
@@ -76,24 +75,24 @@ public class TaskMessageController extends BaseController {
 			tm.setTo_user(to_user);
 			tm.setRoot_id(root_id);
 		}
-		
+
 		tm.setMessage_id(message_id);
 		tm.setUsers_id(users_id);
 		tm.setMessage_time(message_time);
 		int flag = taskMesService.save(tm);
 
 		Map<String, Object> map = new HashMap<String, Object>();
-		
-		if(flag == 0){
+
+		if (flag == 0) {
 			map.put("state", 0);
 			map.put("success", true);
 			map.put("msg", "发布成功！");
 			map.put("message_id", message_id);
-		}else{
+		} else {
 			map.put("state", 1);
 			map.put("success", false);
 			map.put("msg", "发布失败！");
-			//map.put("message_id", message_id);
+			// map.put("message_id", message_id);
 		}
 		return Object2JsonUtil.Object2Json(map);
 	}
