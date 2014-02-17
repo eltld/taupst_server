@@ -2,6 +2,10 @@ package com.taupst.controller;
 
 import javax.annotation.Resource;
 
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import com.taupst.service.NewsService;
+import com.taupst.service.PullService;
 import com.taupst.service.RankingService;
 import com.taupst.service.SignService;
 import com.taupst.service.TaskMesService;
@@ -27,4 +31,13 @@ public abstract class BaseController {
 	
 	@Resource(name="rankingService")
 	protected RankingService rankingService;
+	
+	@Resource(name="newsService")
+	protected NewsService newsService;
+	
+	@Resource(name="pullService")
+	protected PullService pullService;
+	
+	@Resource(name="taskExecutor")
+	protected ThreadPoolTaskExecutor taskExecutor;
 }

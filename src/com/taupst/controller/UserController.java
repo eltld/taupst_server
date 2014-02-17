@@ -1,5 +1,6 @@
 package com.taupst.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,7 @@ import com.baidu.inf.iis.bcs.BaiduBCS;
 import com.baidu.inf.iis.bcs.auth.BCSCredentials;
 import com.baidu.inf.iis.bcs.request.DeleteObjectRequest;
 import com.taupst.model.User;
+import com.taupst.threadtask.SendNews;
 import com.taupst.util.CodeFactory;
 import com.taupst.util.CodeUtil;
 import com.taupst.util.FinalVariable;
@@ -54,15 +56,22 @@ public class UserController extends BaseController {
 		case 1:
 			String codeUrl = CodeFactory.getCode(Integer.parseInt(user
 					.getSchool()));
-			String fileName = System.currentTimeMillis() + ".jpg";
-			boolean flag = CodeUtil.downloadImage(codeUrl, fileName, request);
-			if (flag) {
-				map.put("state", "1");
-				map.put("msg", "用户不存在,code下载成功");
-				map.put("mcode", fileName);
+			if (codeUrl != null) {
+				String fileName = user.getSchool() + user.getStudent_id()
+						+ ".jpg";
+				boolean flag = CodeUtil.downloadImage(codeUrl, fileName,
+						request);
+				if (flag) {
+					map.put("state", "1");
+					map.put("msg", "用户不存在,code下载成功");
+					map.put("mcode", fileName);
+				} else {
+					map.put("state", "3");
+					map.put("msg", "用户不存在，code下载失败");
+				}
 			} else {
-				map.put("state", "3");
-				map.put("msg", "用户不存在，code下载失败");
+				map.put("state", "1");
+				map.put("msg", "用户不存在,无验证码");
 			}
 			break;
 		case 2:
@@ -91,18 +100,20 @@ public class UserController extends BaseController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	@ResponseBody
-	public String login(User user, String code, HttpServletRequest request,
-			HttpServletResponse response) {
+	public String login(User user, String code, String issysn,
+			HttpServletRequest request, HttpServletResponse response) {
 
 		// 1表示用户名或密码错误，2表示数据库异常
 
 		// 判断该用户在数据库中是否存在
-		int isExist = userService.isUserExist(user.getStudent_id(),
-				user.getSchool());
+		/*
+		 * int isExist = userService.isUserExist(user.getStudent_id(),
+		 * user.getSchool());
+		 */
 
 		Map<String, Object> returnMap = new HashMap<String, Object>();
-		// 该用户在数据库中存在
-		if (isExist == 0) {
+		// 该用户在数据库中存在,即已经同步过
+		if (issysn.equals("1")) {
 
 			log.debug("login from database ...");
 
@@ -112,8 +123,8 @@ public class UserController extends BaseController {
 			Map<String, Object> u = (Map<String, Object>) returnMap.get("user");
 			SessionUtil.setUser(request, u);
 			returnMap.remove("user");
-
-		} else if (isExist == 1) {
+			// 还未同步过
+		} else if (issysn.equals("2")) {
 
 			// 该用户在数据库中不存在，到教务系统中获取用户信息保存到数据库中
 			Sysn sysn = SysnFac.getConn(user.getSchool(), user.getStudent_id(),
@@ -124,6 +135,16 @@ public class UserController extends BaseController {
 				log.debug("login from net ...");
 
 				stuInfo = sysn.login(request);
+				// 删除验证码，同步完成后
+				String fileName = user.getSchool() + user.getStudent_id()
+						+ ".jpg";
+				File file = new File(request.getSession().getServletContext()
+						.getRealPath("/image/code")
+						+ "/" + fileName);
+				if (file.exists()) {
+					file.delete();
+				}
+
 				// 该用户在教务系统中登录失败，表示用户名或密码错误。
 				if (stuInfo.get("isLogined").equals("true")) {
 
@@ -171,10 +192,10 @@ public class UserController extends BaseController {
 				returnMap.put("state", "2"); // 2 表示数据库异常
 			}
 
-		} else if (isExist == 2) {
-			returnMap.put("isLogined", "false");
-			returnMap.put("state", "2"); // 2 表示数据库异常
-		}
+		}/*
+		 * else if (isExist == 2) { returnMap.put("isLogined", "false");
+		 * returnMap.put("state", "2"); // 2 表示数据库异常 }
+		 */
 
 		return Object2JsonUtil.Object2Json(returnMap);
 	}
@@ -252,7 +273,9 @@ public class UserController extends BaseController {
 		if (user_photo != null) {
 			String u_photo = (String) u.get("photo");
 			if (u_photo != null && !u_photo.equals("")) {
-				this.deletePhoto("/photo/" + u_photo);
+				if (!u_photo.equals(FinalVariable.PHOTO_BOY)
+						&& !u_photo.equals(FinalVariable.PHOTO_GRIL))
+					this.deletePhoto("/photo/" + u_photo);
 			}
 		}
 
@@ -275,6 +298,15 @@ public class UserController extends BaseController {
 	public void getUserSignature(User user, HttpServletRequest request,
 			HttpServletResponse response) {
 
+	}
+
+	@RequestMapping(value = "/testThread", method = RequestMethod.GET)
+	@ResponseBody
+	public void testThread() {
+		for (int i = 0; i < 10; i++) {
+			taskExecutor.execute(new SendNews("name_" + (i + 1)));
+		}
+		System.out.println("do others... ...");
 	}
 
 	private boolean deletePhoto(String path) {
@@ -377,9 +409,9 @@ public class UserController extends BaseController {
 		// String[] fileName = (String[]) map.get("fileName");
 		// Object[] useFileValue = (Object[]) map.get("fileValue");
 
-		// UserController userController = new UserController();
+		//UserController userController = new UserController();
 
-		// System.out.println(userController.util.getUUID());
+		//System.out.println(userController.util.getUUID());
 
 		/*
 		 * long l_1 = System.currentTimeMillis();

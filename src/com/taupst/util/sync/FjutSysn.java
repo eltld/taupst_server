@@ -16,7 +16,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -53,7 +52,7 @@ public class FjutSysn implements Sysn {
 	@Override
 	public Map<String, String> login(HttpServletRequest request) throws ClientProtocolException,
 			IOException {
-		this.httpClient = HttpClients.createDefault();
+		this.httpClient = HttpClientUtil.getHttpClient(request, null);
 		Map<String, String> loginParams = new HashMap<String, String>();
 		Map<String, String> info = new HashMap<String, String>();
 		loginParams.put("__VIEWSTATE",

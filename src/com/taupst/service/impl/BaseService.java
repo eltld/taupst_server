@@ -2,6 +2,8 @@ package com.taupst.service.impl;
 
 import javax.annotation.Resource;
 
+import com.taupst.dao.NewsDao;
+import com.taupst.dao.PullDao;
 import com.taupst.dao.RankingDao;
 import com.taupst.dao.SignDao;
 import com.taupst.dao.TaskDao;
@@ -23,4 +25,10 @@ public abstract class BaseService {
 	
 	@Resource(name="rankingDao")
 	protected RankingDao rankingDao;
+
+	@Resource(name="newsDao")
+	protected NewsDao newsDao;
+	
+	@Resource(name="pullDao")
+	protected PullDao pullDao;
 }

@@ -25,7 +25,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.taupst.util.JdbcUtils;
-import com.taupst.util.SessionUtil;
 
 @SuppressWarnings("deprecation")
 public class FjnuSysn implements Sysn {
@@ -61,8 +60,7 @@ public class FjnuSysn implements Sysn {
 	public Map<String, String> login(HttpServletRequest request) throws ClientProtocolException,
 			IOException {
 		log.debug(JdbcUtils.class.getName() + " start ...");
-		this.httpClient = (CloseableHttpClient) SessionUtil.getAttr(request,
-				"mHttpClient");
+		this.httpClient = HttpClientUtil.getHttpClient(request, null);
 
 		HttpPost httpPost1 = new HttpPost(
 				"http://jwgl.fjnu.edu.cn/default2.aspx");

@@ -45,14 +45,13 @@ public class MjuSysn implements Sysn {
 	public Map<String, String> login(HttpServletRequest request)
 			throws ClientProtocolException, IOException {
 		Map<String, String> map = new HashMap<String, String>();
-		httpClient = (CloseableHttpClient) SessionUtil.getAttr(request,
-				"mHttpClient");
+		
+		httpClient = HttpClientUtil.getHttpClient(request, null);
 		HttpEntity httpEntity = null;
 		String html = null;
 
 		// 动态获取__VIEWSTATE的值
 		HttpGet httpGet = new HttpGet("http://jwgl.mju.edu.cn/default2.aspx");
-		// httpGet.setHeader("Cookie", this.cookie);
 		httpGet.setHeader("Host", "jwgl.mju.edu.cn");
 
 		httpResponse = httpClient.execute(httpGet);
@@ -91,9 +90,6 @@ public class MjuSysn implements Sysn {
 		httpPost.setHeader("Referer", "http://jwgl.mju.edu.cn/");
 		httpPost.setHeader("Host", "jwgl.mju.edu.cn");
 
-		// httpPost.setHeader("Cookie", this.cookie);
-		// httpPost.addHeader(new
-		// BasicHeader("Cookie","ASP.NET_SessionId=vi0rdrv5yn5nps45u0crds45"));
 		httpResponse = httpClient.execute(httpPost);
 
 		httpEntity = httpResponse.getEntity();
@@ -114,7 +110,6 @@ public class MjuSysn implements Sysn {
 				httpGet_getName.setHeader("Host", "jwgl.mju.edu.cn");
 				httpGet_getName.setHeader("Referer",
 						"http://jwgl.mju.edu.cn/default2.aspx");
-				// httpGet_getName.setHeader("Cookie", this.cookie);
 				httpResponse = httpClient.execute(httpGet_getName);
 				HttpEntity content_getName = httpResponse.getEntity();
 				html = EntityUtils.toString(content_getName);
@@ -132,14 +127,14 @@ public class MjuSysn implements Sysn {
 				httpGet_getName.setHeader("Referer",
 						"http://jwgl.mju.edu.cn/xs_main.aspx?xh="
 								+ this.userName + "");
-				// httpGet_getName.setHeader("Cookie", this.cookie);
 				httpResponse = httpClient.execute(httpGet_getName);
 				HttpEntity content_userinfo = httpResponse.getEntity();
 				html = EntityUtils.toString(content_userinfo);
 				// System.out.println(html);
 
 				doc = Jsoup.parse(html);
-
+				
+				// 获取提示信息，判断是否完成教师评价
 				Elements es_tmp = doc.select("script");
 				String err_msg = es_tmp.html();
 				if(err_msg != null && !err_msg.equals("")){
@@ -154,6 +149,7 @@ public class MjuSysn implements Sysn {
 					}
 				}
 				
+				// 未完成教师评价
 				if (err_msg
 						.equals("你还没有进行本学期的教学质量评价,在本系统的“教学质量评价”栏中完成评价工作后，才能进入系统")) {
 					map.put("isLogined", "false");
@@ -162,7 +158,7 @@ public class MjuSysn implements Sysn {
 					map.remove("student_id");
 					map.remove("xm");
 				} else {
-
+					// 已完成教师评价
 					map.put("isLogined", "true");
 					map.put("state", "0");
 					map.put("msg", "登录成功");

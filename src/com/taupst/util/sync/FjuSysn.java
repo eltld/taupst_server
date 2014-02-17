@@ -16,7 +16,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -60,7 +59,7 @@ public class FjuSysn implements Sysn {
 
 		// HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 		// CloseableHttpClient httpClient =httpClientBuilder.build(); 这种方式也可以。
-		this.httpClient = HttpClients.createDefault();
+		this.httpClient = HttpClientUtil.getHttpClient(request, null);
 
 		Map<String, String> loginParams = new HashMap<String, String>();
 

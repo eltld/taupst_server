@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.stereotype.Repository;
 
 import com.taupst.dao.TaskMesDao;
+import com.taupst.model.News;
 import com.taupst.model.TaskMessage;
 import com.taupst.util.FinalVariable;
 
@@ -28,7 +29,7 @@ public class TaskMesDaoImpl extends BaseDao implements TaskMesDao{
 		
 		sql.append("SELECT tm.task_id,tm.message_id,tm.users_id,u.username,u.sex,u.photo,tm.message_content,tm.message_time ");
 		sql.append("FROM users_info u,task_message tm ");
-		sql.append("WHERE u.users_id = tm.users_id AND tm.task_id=? AND tm.root_id = '-1' AND tm.to_user = '-1' ");
+		sql.append("WHERE u.users_id = tm.users_id AND tm.task_id=? AND tm.root_id = '-1' ");
 		// type == 1 表示向下拉，获取比当前id时间更新的
 		if(type == 1){
 			sql.append("AND SUBSTRING(tm.message_id FROM 1 FOR 17) > ? ");
@@ -93,29 +94,33 @@ public class TaskMesDaoImpl extends BaseDao implements TaskMesDao{
 	}
 
 	@Override
-	public int save(TaskMessage tm) {
+	public int save(TaskMessage tm,News news) {
 		
 		int flag = 2;
 		
-		List<Object> params = new ArrayList<Object>();
+		StringBuilder sql_tm = new StringBuilder();
 		
-		StringBuilder sql = new StringBuilder();
+		sql_tm.append("insert into task_message(");
+		sql_tm.append("message_id,users_id,task_id,message_content,message_time,to_user,root_id) ");
+		sql_tm.append("values(");
+		sql_tm.append("'"+tm.getMessage_id()+"','"+tm.getUsers_id()+"',");
+		sql_tm.append("'"+tm.getTask_id()+"','"+tm.getMessage_content()+"',");
+		sql_tm.append("'"+tm.getMessage_time()+"','"+tm.getTo_user()+"',");
+		sql_tm.append("'"+tm.getRoot_id()+"') ");
 		
-	    sql.append("insert into task_message(");
-	    sql.append("message_id,users_id,task_id,message_content,message_time,to_user,root_id) ");
-	    sql.append("values(?,?,?,?,?,?,?)");
-		
-	    params.add(tm.getMessage_id());
-	    params.add(tm.getUsers_id());
-	    params.add(tm.getTask_id());
-	    params.add(tm.getMessage_content());
-	    params.add(tm.getMessage_time());
-	    params.add(tm.getTo_user());
-	    params.add(tm.getRoot_id());
-		
+	    StringBuilder sql_news = new StringBuilder();
+	    
+	    sql_news.append("insert into news(");
+	    sql_news.append("news_id,type,send,receive,source,content) ");
+	    sql_news.append("values(");
+	    sql_news.append("'"+news.getNews_id()+"',"+news.getType()+",");
+	    sql_news.append("'"+news.getSend()+"','"+news.getReceive()+"',");
+	    sql_news.append("'"+news.getSource()+"','"+news.getContent()+"')");
+	    
 		try {
+			String[] sql = new String[]{sql_tm.toString(),sql_news.toString()};
 			jdbcUtils.getConnection();
-			boolean isSucceed = jdbcUtils.updateByPreparedStatement(sql.toString(), params);
+			boolean isSucceed = jdbcUtils.updateByBatch(sql);
 			if(isSucceed == true){
 				flag = 0;
 			}else{

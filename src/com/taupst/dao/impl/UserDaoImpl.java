@@ -218,15 +218,21 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	public boolean saveUserInfo(Map<String, String> stuInfo) {
 
 		String username = "";
+		String photo = "";
+		String signature = "";
 		String sex = stuInfo.get("lbl_xb");
 		if (sex.equals("男")) {
 			username = FinalVariable.USERNAME_BOY;
+			photo = FinalVariable.PHOTO_BOY;
+			signature = FinalVariable.SIGNATURE_BOY;
 		} else if (sex.equals("女")) {
 			username = FinalVariable.USERNAME_GRIL;
+			photo = FinalVariable.PHOTO_GRIL;
+			signature = FinalVariable.SIGNATURE_GRIL;
 		}
 		// 插入用户表
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into users_info(users_id,student_id,school,realname,sex,department,special,classname,pwd,grade,username) ");
+		sql.append("insert into users_info(users_id,student_id,school,realname,sex,department,special,classname,pwd,grade,username,photo,signature) ");
 		sql.append("values(");
 		sql.append("'" + stuInfo.get("users_id") + "','"
 				+ stuInfo.get("student_id") + "',");
@@ -237,7 +243,7 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 		sql.append("'" + stuInfo.get("lbl_zymc") + "','"
 				+ stuInfo.get("lbl_xzb") + "',");
 		sql.append("'" + stuInfo.get("pwd") + "','" + stuInfo.get("lbl_dqszj")
-				+ "','" + username + "') ");
+				+ "','" + username + "','" + photo + "','" + signature + "') ");
 		// 插入排行表
 		long datetime = System.currentTimeMillis();
 		StringBuilder sql_ranking = new StringBuilder();
@@ -246,12 +252,19 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 		sql_ranking.append("values(");
 		sql_ranking.append("'" + stuInfo.get("users_id") + "',0,0," + datetime
 				+ ")");
+
+		// 插入排行表
+		StringBuilder sql_pull = new StringBuilder();
+		sql_pull.append("insert into pull_info(pull_id,user_id,channel_id) ");
+		sql_pull.append("values(");
+		sql_pull.append("'" + stuInfo.get("users_id") + "',null,null)");
+
 		boolean flag = false;
 		try {
 			jdbcUtils.getConnection();
 
 			String[] sql_batch = new String[] { sql.toString(),
-					sql_ranking.toString() };
+					sql_ranking.toString(),sql_pull.toString() };
 			flag = jdbcUtils.updateByBatch(sql_batch);
 
 		} catch (Exception e) {

@@ -23,15 +23,20 @@ public class JdbcUtils {
 	
 	private static Logger log = Logger.getLogger(JdbcUtils.class.getName());
 	
-	private String host = "sqld.duapp.com";
-	private String port = "4050";
-	private String username = "A9MIroqTfseTHViNpijkXvV4";
+	//private String host = "sqld.duapp.com";
+	private String host = "svrid7qvpf3j6a1.mysql.duapp.com";
+//	private String port = "4050";
+	private String port = "10031";
+//	private String username = "A9MIroqTfseTHViNpijkXvV4";
+	private String username = "bae";
 	private String password = "2UEyEfQIMb32jnrUgs01rAyuCdqmcnsu";
-
+	
 	private String dbUrl = "jdbc:mysql://";
 	private String serverName = host + ":" + port + "/";
 
-	private String databaseName = "WUdJdNvkxUsqACQRTaxZ";
+//	private String databaseName = "WUdJdNvkxUsqACQRTaxZ";
+	private String databaseName = "svrid7qvpf3j6a1";
+	
 	private String connName = dbUrl + serverName + databaseName;
 
 	private Connection connection;
@@ -59,9 +64,9 @@ public class JdbcUtils {
 			log.info(JdbcUtils.class.getName() + "======getConnection()======" + "获取数据库连接...");
 
 			connection = DriverManager.getConnection(connName, username,
-					password);
+				password);
 
-			// connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/wudjdnvkxusqacqrtaxz","root" ,"root");
+		   // connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/wudjdnvkxusqacqrtaxz","root" ,"root");
 			 
 			 log.info(JdbcUtils.class.getName() + "======getConnection()======" + "获取数据库连接成功");
 		} catch (Exception e) {
@@ -112,7 +117,23 @@ public class JdbcUtils {
 		}
 		return flag;
 	}
-
+	
+//	public boolean updateByPreparedStatementByBatch(String sql, List<Object> params)
+//			throws SQLException {
+//		boolean flag = false;
+//		int result = -1;
+//		pstmt = connection.prepareStatement(sql);
+//		int index = 1;
+//		if (params != null && !params.isEmpty()) {
+//			for (int i = 0; i < params.size(); i++) {
+//				pstmt.setObject(index++, params.get(i));
+//			}
+//		}
+//		result = pstmt.executeUpdate();
+//		flag = result > 0 ? true : false;
+//		return flag;
+//	}
+	
 	public boolean updateByPreparedStatement(String sql, List<Object> params)
 			throws SQLException {
 		boolean flag = false;
@@ -158,8 +179,13 @@ public class JdbcUtils {
 		int col_len = metaData.getColumnCount();
 		while (resultSet.next()) {
 			for (int i = 0; i < col_len; i++) {
-				String cols_name = metaData.getColumnName(i + 1);
+				String cols_name = metaData.getColumnLabel(i + 1);
 				Object cols_value = resultSet.getObject(cols_name);
+				if (cols_value instanceof Date) {
+					SimpleDateFormat df = new SimpleDateFormat(
+							"yyyy-MM-dd HH:mm:ss");
+					cols_value = df.format(cols_value);
+				}
 				if (cols_value == null) {
 					cols_value = "";
 				}

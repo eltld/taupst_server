@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.taupst.model.News;
 import com.taupst.model.TaskMessage;
 import com.taupst.service.TaskMesService;
 
@@ -17,8 +18,8 @@ public class TaskMesServiceImpl extends BaseService implements TaskMesService {
 	}
 
 	@Override
-	public int save(TaskMessage tm) {
-		return taskMesDao.save(tm);
+	public int save(TaskMessage tm,News news) {
+		return taskMesDao.save(tm,news);
 	}
 
 }

@@ -16,6 +16,13 @@ public class FinalVariable {
 	
 	public final static String USERNAME_GRIL = "某女汉子";
 	
+	public final static String SIGNATURE_GRIL = "没签名，真汉子";
+	
+	public final static String PHOTO_GRIL = "gril_photo.jpeg";
+	
 	public final static String USERNAME_BOY = "某屌丝男";
 
+	public final static String SIGNATURE_BOY = "没签名，没妹子";
+	
+	public final static String PHOTO_BOY = "boy_photo.jpeg";
 }

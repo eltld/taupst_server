@@ -205,6 +205,53 @@ public class MethodUtil {
 		return this.getRandom(min, max);
 	}
 	
+	/**
+	 * 
+	 * @param type 0=yyyy-MM-dd HH:mm:ss,1=yyyyMMddHHmmss,2=yyyyMMdd
+	 * @param oldFormatStr
+	 * @param newFormatStr
+	 * @param dateStr
+	 * @return
+	 * @throws ParseException
+	 */
+	public String changeDateFormat(int type,String oldFormatStr,String newFormatStr,String dateStr) throws ParseException{
+		
+		SimpleDateFormat sdf_old = null;
+		if(oldFormatStr != null){
+			sdf_old = new SimpleDateFormat(oldFormatStr);
+		}else{
+			sdf_old = new SimpleDateFormat("yyyyMMddHHmmss");
+		}
+		Date date = sdf_old.parse(dateStr);
+		
+		SimpleDateFormat sdf_new = null;
+		if(null!=newFormatStr){
+			sdf_new=new SimpleDateFormat(newFormatStr);
+		}else if(type==0){
+			sdf_new=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		}else if(type==1){
+			sdf_new=new SimpleDateFormat("yyyyMMddHHmmss");
+		}else if(type==2){
+			sdf_new=new SimpleDateFormat("yyyyMMdd");
+		}else if(type==4){
+			sdf_new=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		}
+		String str=sdf_new.format(date);
+		return str;
+	}
+	
+	public String changeDateFormat(String dateStr) throws ParseException{
+		
+		String year = dateStr.substring(0, 4);
+		String mm = dateStr.substring(4, 6);
+		String dd = dateStr.substring(6, 8);
+		String HH = dateStr.substring(8, 10);
+		String m = dateStr.substring(10, 12);
+		String ss = dateStr.substring(12, 14);
+		String str = year + "-" + mm + "-" + dd + " " + HH + ":" + m + ":" + ss; 
+		return str;
+	}
+	
 	 /**
      * 
      * <br>
@@ -227,8 +274,6 @@ public class MethodUtil {
 		}else if(type==4){
 			sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		}
-		
-		
 		String str=sdf.format(date);
 		return str;
 	}
@@ -373,11 +418,13 @@ public class MethodUtil {
 		return Long.parseLong(new SimpleDateFormat("yyMMddHHmmss").format(new Date()) + getRandom(number));
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ParseException {
 		MethodUtil util=new MethodUtil();
-		for(int i=0;i<1000;i++){
-		  System.out.println(util.getUid());
-		}
+		String uuid = util.getUUID();
+		uuid = uuid.substring(0, 17);
+		System.out.println(uuid);
+		String s = util.changeDateFormat(uuid);
+		System.out.println(s);
 	}
 
 	 /**

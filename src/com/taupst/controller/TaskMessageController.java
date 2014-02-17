@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.taupst.model.News;
 import com.taupst.model.TaskMessage;
 import com.taupst.util.Object2JsonUtil;
 import com.taupst.util.SessionUtil;
@@ -67,19 +68,28 @@ public class TaskMessageController extends BaseController {
 		String to_user = tm.getTo_user();
 		String root_id = tm.getRoot_id();
 		String message_time = util.getDate(0, null);
-
+		
+		News news = new News();
+		news.setNews_id(util.getUUID());
+		news.setType(1);
+		news.setReceive(to_user);
+		news.setSend(users_id);
+		news.setSource(message_id);
+		news.setContent(user.get("username") + "回复了你的留言!");
+		
 		// 判断是否根留言,是的话，to_user和root_id都赋值为"-1"
-		if (to_user == null && root_id == null) {
-			to_user = "-1";
+		if (root_id == null) {
+			//to_user = "-1";
 			root_id = "-1";
 			tm.setTo_user(to_user);
 			tm.setRoot_id(root_id);
+			news.setContent(user.get("username") + "给你的任务留言了!");
 		}
 
 		tm.setMessage_id(message_id);
 		tm.setUsers_id(users_id);
 		tm.setMessage_time(message_time);
-		int flag = taskMesService.save(tm);
+		int flag = taskMesService.save(tm,news);
 
 		Map<String, Object> map = new HashMap<String, Object>();
 
@@ -92,7 +102,6 @@ public class TaskMessageController extends BaseController {
 			map.put("state", 1);
 			map.put("success", false);
 			map.put("msg", "发布失败！");
-			// map.put("message_id", message_id);
 		}
 		return Object2JsonUtil.Object2Json(map);
 	}

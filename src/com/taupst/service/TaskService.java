@@ -17,5 +17,12 @@ public interface TaskService {
 
 	boolean updateTaskState();
 
+	Map<String, Object> getTaskInfoById(String task_id);
+
+	boolean finishTask(Map<String, Object> user, String task_id, String sign_id, String prise,
+			String users_id, String msg);
+
+	boolean finishTask(String task_id, String f_time);
+
 
 }
